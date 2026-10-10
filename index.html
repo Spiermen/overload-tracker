@@ -159,6 +159,20 @@ details.hist[open] summary{margin-bottom:6px}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.gold{background:var(--gold);color:#241a00;border-color:var(--gold)}
 #toast.acc{background:var(--acc);color:#140a00;border-color:var(--acc)}
+.qrbox{background:#fff;border-radius:16px;padding:10px;max-width:290px;margin:4px auto}
+.qr{display:block;width:100%;height:auto}
+#shareUrl{font-size:13px;color:var(--mut)}
+.friend{background:transparent;text-align:left;padding:0 4px;font-weight:500}
+.vs-names{display:flex;justify-content:center;align-items:baseline;gap:12px;font-size:24px;font-weight:900;margin-bottom:4px}
+.me-c{color:var(--acc)}.fr-c{color:var(--acc2);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{display:grid;grid-template-columns:62px 1fr 88px;gap:8px;align-items:center;margin-top:6px;font-size:14px}
+.bar .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{height:14px;background:#262b35;border-radius:8px;overflow:hidden}
+.fill{height:100%;border-radius:8px}.fill.me{background:var(--acc)}.fill.fr{background:var(--acc2)}
+.bar .val{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.b.blue{background:var(--acc2);color:#00131f}.b.gray{background:#2a2f3a;color:var(--text)}
+.cmpx .h3{min-width:0}
+.chip{display:inline-block;background:var(--card2);border-radius:999px;padding:6px 10px;margin:4px 4px 0 0;font-size:13px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -374,8 +388,8 @@ function weekStats() {
 /* ---------- render ---------- */
 function render() {
   $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  $('#title').innerHTML = { train: S.active ? 'Workout' : '<span class="logo">Over</span>load', history: 'History', progress: 'Progress', settings: 'Settings' }[tab];
-  ({ train: renderTrain, history: renderHistory, progress: renderProgress, settings: renderSettings })[tab]();
+  $('#title').innerHTML = { train: S.active ? 'Workout' : '<span class="logo">Over</span>load', history: 'History', progress: 'Progress', settings: 'Settings', compare: 'Compare' }[tab];
+  ({ train: renderTrain, history: renderHistory, progress: renderProgress, settings: renderSettings, compare: renderCompare })[tab]();
 }
 
 function renderTrain() {
@@ -490,7 +504,7 @@ function spark(vals) {
 }
 function renderProgress() {
   const list = sortedExercises();
-  view.innerHTML = `<div class="row gap mb"><input id="exq" placeholder="Search exercises" autocomplete="off"><button class="btn-primary" data-action="newExercise" style="min-height:46px;white-space:nowrap">+ New</button></div>
+  view.innerHTML = friendsCardHTML() + `<div class="row gap mb"><input id="exq" placeholder="Search exercises" autocomplete="off"><button class="btn-primary" data-action="newExercise" style="min-height:46px;white-space:nowrap">+ New</button></div>
     <div id="exlist">${list.map(ex => {
       const h = sessionsFor(ex.id), st = h.map(s => sessStats(s.sets)), best = st.reduce((m, s) => Math.max(m, s.e1), 0);
       return `<button class="card exrow" data-action="openEx" data-id="${ex.id}" data-name="${esc(ex.name.toLowerCase())}"><div class="grow" style="min-width:0"><div class="h3">${esc(ex.name)}</div><div class="mut small">${h.length ? `${h.length} session${h.length > 1 ? 's' : ''} &middot; last ${fdate(h[h.length - 1].date)} &middot; best e1RM ${fe1(best)} ${U()}` : 'Not logged yet'}</div></div>${spark(st.map(s => s.e1))}</button>`;
@@ -550,7 +564,7 @@ function renderSettings() {
       <div class="row gap"><button class="btn-primary grow" data-action="export">Export JSON</button><button class="grow" data-action="import">Import JSON</button></div>
       <p class="mut small">Last backup: ${st.lastBackup ? fdate(st.lastBackup, true) : 'never'}</p></div>
     <div class="card"><div class="h3">Install on your phone</div><p class="mut small">iPhone: open in Safari, tap Share, then <b>Add to Home Screen</b>. Android: Chrome menu, then <b>Install app</b>. After the first load it works offline.</p>${deferredInstall ? '<button data-action="install" class="btn-primary btn-block">Install app</button>' : ''}</div>
-    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v1 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
+    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v2 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
 }
 
 /* ---------- pickers & templates ---------- */
@@ -648,6 +662,267 @@ $('#importFile').addEventListener('change', async e => {
     S = migrate(d); save(); syncWake(); render(); toast(`Imported ${S.workouts.length} workouts`);
   } catch (err) { toast("That file isn't an Overload backup"); }
 });
+
+
+/* ---------- tiny QR encoder (byte mode, ECC L/M, v1-40; after Nayuki's reference design) ---------- */
+const QR = (() => {
+  const ECC = { L: [-1,7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28,28,28,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30], M: [-1,10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28] };
+  const BLK = { L: [-1,1,1,1,1,1,2,2,2,2,4,4,4,4,4,6,6,6,6,7,8,8,9,9,10,12,12,12,13,14,15,16,17,18,19,19,20,21,22,24,25], M: [-1,1,1,1,2,2,4,4,4,5,5,5,8,9,9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49] };
+  const FMT = { L: 1, M: 0 };
+  const rawMods = v => { let r = (16 * v + 128) * v + 64; if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; } return r; };
+  const dataCw = (v, e) => Math.floor(rawMods(v) / 8) - ECC[e][v] * BLK[e][v];
+  const mul = (x, y) => { let z = 0; for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; } return z & 0xff; };
+  function rsDiv(deg) { const r = new Array(deg).fill(0); r[deg - 1] = 1; let root = 1; for (let i = 0; i < deg; i++) { for (let j = 0; j < deg; j++) { r[j] = mul(r[j], root); if (j + 1 < deg) r[j] ^= r[j + 1]; } root = mul(root, 2); } return r; }
+  function rsRem(data, div) { const r = new Array(div.length).fill(0); for (const b of data) { const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => r[i] ^= mul(c, f)); } return r; }
+  function encode(text, ecl) {
+    const bytes = [...new TextEncoder().encode(text)];
+    let v = 1; for (; v <= 40; v++) if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= dataCw(v, ecl) * 8) break;
+    if (v > 40) throw new Error('Too long for a QR code');
+    const bits = [], put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+    put(4, 4); put(bytes.length, v < 10 ? 8 : 16); bytes.forEach(b => put(b, 8));
+    const cap = dataCw(v, ecl) * 8; put(0, Math.min(4, cap - bits.length)); put(0, (8 - bits.length % 8) % 8);
+    for (let p = 0xEC; bits.length < cap; p ^= 0xEC ^ 0x11) put(p, 8);
+    const cw = []; for (let i = 0; i < bits.length; i += 8) { let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; cw.push(b); }
+    const nb = BLK[ecl][v], el = ECC[ecl][v], raw = Math.floor(rawMods(v) / 8), nShort = nb - raw % nb, sLen = Math.floor(raw / nb), div = rsDiv(el), blocks = [];
+    for (let i = 0, k = 0; i < nb; i++) { const d = cw.slice(k, k + sLen - el + (i < nShort ? 0 : 1)); k += d.length; const e = rsRem(d, div); if (i < nShort) d.push(0); blocks.push(d.concat(e)); }
+    const all = []; for (let i = 0; i < blocks[0].length; i++) blocks.forEach((b, j) => { if (i !== sLen - el || j >= nShort) all.push(b[i]); });
+    const N = v * 4 + 17, M = [...Array(N)].map(() => new Array(N).fill(false)), F = [...Array(N)].map(() => new Array(N).fill(false));
+    const set = (x, y, d) => { M[y][x] = d; F[y][x] = true; };
+    for (let i = 0; i < N; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+    const finder = (x, y) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const d = Math.max(Math.abs(dx), Math.abs(dy)), xx = x + dx, yy = y + dy; if (xx >= 0 && xx < N && yy >= 0 && yy < N) set(xx, yy, d !== 2 && d !== 4); } };
+    finder(3, 3); finder(N - 4, 3); finder(3, N - 4);
+    if (v > 1) {
+      const n = Math.floor(v / 7) + 2, step = Math.floor((v * 8 + n * 3 + 5) / (n * 4 - 4)) * 2, pos = [6];
+      for (let p = N - 7; pos.length < n; p -= step) pos.splice(1, 0, p);
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        if ((i === 0 && j === 0) || (i === 0 && j === n - 1) || (i === n - 1 && j === 0)) continue;
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(pos[i] + dx, pos[j] + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+      }
+    }
+    const fmt = mask => {
+      const d = FMT[ecl] << 3 | mask; let r = d; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      const b = (d << 10 | r) ^ 0x5412, g = i => ((b >>> i) & 1) === 1;
+      for (let i = 0; i <= 5; i++) set(8, i, g(i)); set(8, 7, g(6)); set(8, 8, g(7)); set(7, 8, g(8)); for (let i = 9; i < 15; i++) set(14 - i, 8, g(i));
+      for (let i = 0; i < 8; i++) set(N - 1 - i, 8, g(i)); for (let i = 8; i < 15; i++) set(8, N - 15 + i, g(i)); set(8, N - 8, true);
+    };
+    fmt(0);
+    if (v >= 7) { let r = v; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25); const b = v << 12 | r; for (let i = 0; i < 18; i++) { const bit = ((b >>> i) & 1) === 1, a = N - 11 + i % 3, c = Math.floor(i / 3); set(a, c, bit); set(c, a, bit); } }
+    let bi = 0;
+    for (let right = N - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < N; vert++) for (let j = 0; j < 2; j++) {
+        const x = right - j, up = ((right + 1) & 2) === 0, y = up ? N - 1 - vert : vert;
+        if (!F[y][x] && bi < all.length * 8) { M[y][x] = ((all[bi >>> 3] >>> (7 - (bi & 7))) & 1) === 1; bi++; }
+      }
+    }
+    const mf = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0, (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0, (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+    const apply = m => { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!F[y][x] && mf[m](x, y)) M[y][x] = !M[y][x]; };
+    const penalty = () => {
+      let p = 0, dark = 0;
+      for (let y = 0; y < N; y++) {
+        let rx = 1, ry = 1;
+        for (let x = 0; x < N; x++) {
+          if (M[y][x]) dark++;
+          if (x > 0) {
+            if (M[y][x] === M[y][x - 1]) { rx++; if (rx === 5) p += 3; else if (rx > 5) p++; } else rx = 1;
+            if (M[x][y] === M[x - 1][y]) { ry++; if (ry === 5) p += 3; else if (ry > 5) p++; } else ry = 1;
+            if (y > 0 && M[y][x] === M[y][x - 1] && M[y][x] === M[y - 1][x] && M[y][x] === M[y - 1][x - 1]) p += 3;
+          }
+        }
+      }
+      return p + Math.floor(Math.abs(dark * 20 - N * N * 10) / (N * N)) * 10;
+    };
+    let best = 0, bp = Infinity;
+    for (let m = 0; m < 8; m++) { apply(m); fmt(m); const p = penalty(); if (p < bp) { bp = p; best = m; } apply(m); }
+    apply(best); fmt(best);
+    return { size: N, version: v, get: (x, y) => M[y][x] };
+  }
+  function svg(text) {
+    const ecl = text.length <= 600 ? 'M' : 'L', q = encode(text, ecl), n = q.size, b = 4; let d = '';
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.get(x, y)) d += `M${x + b} ${y + b}h1v1h-1z`;
+    return `<svg class="qr" viewBox="0 0 ${n + 2 * b} ${n + 2 * b}" shape-rendering="crispEdges" role="img" aria-label="QR code for your stats link"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  }
+  return { encode, svg };
+})();
+
+/* ---------- friend compare (no accounts; snapshot lives in the link) ---------- */
+const FKEY = 'overload.friends';
+const nameKey = s => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+function loadFriends() { try { const a = JSON.parse(localStorage.getItem(FKEY) || '[]'); return Array.isArray(a) ? a.filter(f => f && Array.isArray(f.x)) : []; } catch (e) { return []; } }
+function saveFriends(a) { try { localStorage.setItem(FKEY, JSON.stringify(a)); } catch (e) { toast('Could not save friend'); } }
+const sameFriend = (a, b) => (a.id && b.id) ? a.id === b.id : nameKey(a.name) === nameKey(b.name);
+function myLifts() { // canonical lb, keyed by normalized name
+  const m = new Map();
+  for (const ex of S.exercises) {
+    const h = sessionsFor(ex.id); if (!h.length) continue;
+    const st = h.map(s => ({ date: s.date, ...sessStats(s.sets) }));
+    let be = 0, bw = null; for (const s of h.flatMap(s => s.sets)) { be = Math.max(be, e1(s.w, s.r)); if (!bw || s.w > bw.w || (s.w === bw.w && s.r > bw.r)) bw = s; }
+    const k = nameKey(ex.name); if (m.has(k)) continue;
+    m.set(k, { name: ex.name, e1: be, topW: bw.w, topR: bw.r, vol: Math.max(...st.map(s => s.vol)), hist: st.slice(-10).map(s => ({ date: s.date, e1: s.e1 })) });
+  }
+  return m;
+}
+function mySnapshot() {
+  if (!S.settings.shareId) { S.settings.shareId = uid(); save(); }
+  const x = [];
+  for (const l of myLifts().values()) {
+    const days = l.hist.map(p => Math.floor(p.date / 864e5));
+    x.push([l.name.slice(0, 60), r2(toD(l.e1), 1), r2(toD(l.topW), 1), l.topR, Math.round(toD(l.vol)), days.map((d, k) => k ? d - days[k - 1] : d), l.hist.map(p => r2(toD(p.e1), 1))]);
+  }
+  return { v: 1, i: S.settings.shareId, n: S.settings.displayName || 'Friend', u: U(), t: Math.floor(Date.now() / 1000), x };
+}
+const b64u = bytes => { let s = ''; for (const b of bytes) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+function unb64u(str) {
+  if (!/^[A-Za-z0-9_-]+$/.test(str)) throw new Error('bad characters');
+  str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '=';
+  const s = atob(str); return Uint8Array.from(s, c => c.charCodeAt(0));
+}
+async function pipeBytes(bytes, stream) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+async function encodeSnap(obj) {
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream !== 'undefined') { try { return '1' + b64u(await pipeBytes(raw, new CompressionStream('deflate-raw'))); } catch (e) { } }
+  return '0' + b64u(raw);
+}
+async function decodeSnap(code) {
+  if (typeof code !== 'string' || code.length < 4 || code.length > 12000) throw new Error('length');
+  let bytes = unb64u(code.slice(1));
+  if (code[0] === '1') {
+    if (typeof DecompressionStream === 'undefined') throw new Error('This browser is too old to open compressed links.');
+    bytes = await pipeBytes(bytes, new DecompressionStream('deflate-raw'));
+  } else if (code[0] !== '0') throw new Error('format');
+  if (bytes.length > 300000) throw new Error('too big');
+  return sanitizeSnap(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
+}
+function sanitizeSnap(o) {
+  const bad = m => { throw new Error(m); };
+  if (!o || typeof o !== 'object' || o.v !== 1) bad('version');
+  const str = (s, max) => typeof s === 'string' ? s.replace(/[\u0000-\u001f\u007f<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, max) : '';
+  const num = (n, max = 1e5) => (typeof n === 'number' && isFinite(n) && n >= 0 && n <= max) ? n : bad('number');
+  const u = o.u === 'kg' ? 'kg' : o.u === 'lb' ? 'lb' : bad('unit'), f = u === 'kg' ? LB_PER_KG : 1;
+  if (!Array.isArray(o.x) || o.x.length > 300) bad('list');
+  const seen = new Set(), x = [];
+  for (const e of o.x) {
+    if (!Array.isArray(e) || e.length < 7) bad('row');
+    const name = str(e[0], 60); if (!name) continue;
+    const k = nameKey(name); if (seen.has(k)) continue; seen.add(k);
+    const d = e[5], h = e[6]; if (!Array.isArray(d) || !Array.isArray(h) || d.length !== h.length || d.length > 30) bad('history');
+    let day = 0;
+    const hist = d.map((dd, j) => { day = j ? day + num(dd, 1e5) : num(dd, 1e6); return { date: day * 864e5, e1: num(h[j]) * f }; });
+    x.push({ name, e1: num(e[1]) * f, topW: num(e[2]) * f, topR: Math.round(num(e[3], 1000)), vol: num(e[4], 1e9) * f, hist });
+  }
+  return { id: str(o.i, 40), name: str(o.n, 40) || 'Friend', unit: u, t: num(o.t, 1e11) * 1000, x };
+}
+let cmp = null; // { f, saved } or { error }
+async function handleHash() {
+  const h = location.hash; if (!h.startsWith('#compare=')) return;
+  history.replaceState(history.state, '', location.pathname + location.search);
+  if (sheetOpen) closeSheet();
+  let f;
+  try { f = await decodeSnap(decodeURIComponent(h.slice(9))); if (!f.x.length) throw new Error('empty'); }
+  catch (e) { cmp = { error: 'This compare link is broken or incomplete. Ask your friend to send it again.' }; tab = 'compare'; render(); return; }
+  const fr = loadFriends(), k = fr.findIndex(x => sameFriend(x, f));
+  let saved = false;
+  if (f.id && f.id === S.settings.shareId) toast("That's your own link. Send it to a friend!");
+  if (k >= 0) {
+    saved = true;
+    if (f.t > fr[k].t) { fr[k] = f; saveFriends(fr); toast(`Updated ${f.name}'s stats`); }
+    else if (f.t < fr[k].t) { toast(`You already have a newer snapshot from ${f.name}`); f = fr[k]; }
+  }
+  cmp = { f, saved }; tab = 'compare'; render(); scrollTo(0, 0);
+}
+addEventListener('hashchange', handleHash);
+
+function friendsCardHTML() {
+  const fr = loadFriends();
+  return `<div class="card"><div class="row between"><div class="h3">Friends</div><button class="btn-primary sm" data-action="shareStats">Share my stats</button></div>
+    ${fr.length ? fr.map((f, k) => `<div class="tpl-row"><button class="grow friend" data-action="openFriend" data-k="${k}"><b>${esc(f.name)}</b> <span class="mut small">&middot; ${f.x.length} lifts &middot; ${fdate(f.t)}</span></button><button class="icon-btn" data-action="delFriend" data-k="${k}" aria-label="Delete friend">&times;</button></div>`).join('')
+      : '<p class="mut small">Send a friend your stats link, open theirs, and compare lifts side by side. No accounts; their numbers never touch your workout history.</p>'}</div>`;
+}
+function bar(who, cls, val, max, label) {
+  const pct = max > 0 ? Math.max(3, 100 * val / max) : 0;
+  return `<div class="bar"><span class="who">${esc(who)}</span><div class="track"><div class="fill ${cls}" style="width:${pct.toFixed(1)}%"></div></div><span class="val">${label}</span></div>`;
+}
+function dualChart(a, b) {
+  const pts = [...a, ...b]; if (pts.length < 2) return '';
+  const W = 340, H = 170, L = 38, R = 10, T = 10, B = 24;
+  const t0 = Math.min(...pts.map(p => p.date)), t1 = Math.max(...pts.map(p => p.date));
+  const vals = pts.map(p => toD(p.e1)); let lo = Math.min(...vals), hi = Math.max(...vals); const pad = Math.max((hi - lo) * 0.12, 2.5); lo = Math.max(0, lo - pad); hi += pad;
+  const X = d => t1 === t0 ? (L + W - R) / 2 : L + (W - L - R) * (d - t0) / (t1 - t0), Y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  let g = ''; for (let k = 0; k <= 3; k++) { const v = lo + (hi - lo) * k / 3, y = Y(v).toFixed(1); g += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text class="ax" x="${L - 6}" y="${(+y + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`; }
+  const ser = (arr, cls) => arr.length ? `<polyline class="${cls}" points="${arr.map(p => X(p.date).toFixed(1) + ',' + Y(toD(p.e1)).toFixed(1)).join(' ')}"/>` + arr.map(p => `<circle class="${cls}" cx="${X(p.date).toFixed(1)}" cy="${Y(toD(p.e1)).toFixed(1)}" r="3"/>`).join('') : '';
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="e1RM history, you vs friend">${g}${ser(b, 't')}${ser(a, 'e')}<text class="ax" x="${L}" y="${H - 6}">${fdate(t0)}</text><text class="ax" x="${W - R}" y="${H - 6}" text-anchor="end">${fdate(t1)}</text></svg>`;
+}
+function renderCompare() {
+  if (!cmp) { tab = 'progress'; render(); return; }
+  if (cmp.error) { view.innerHTML = `<div class="card empty"><div class="h3">Couldn't open that link</div><p class="mut">${esc(cmp.error)}</p><button class="btn-primary" data-action="tab" data-tab="progress">Back to Progress</button></div>`; return; }
+  const f = cmp.f, me = myLifts(), fm = new Map(f.x.map(e => [nameKey(e.name), e])), u = U(), fn = esc(f.name);
+  const both = [], onlyMe = [], onlyF = [];
+  for (const [k, m] of me) fm.has(k) ? both.push([m, fm.get(k)]) : onlyMe.push(m);
+  for (const [k, e] of fm) if (!me.has(k)) onlyF.push(e);
+  let meA = 0, fA = 0; both.forEach(([m, e]) => { const d = toD(m.e1) - toD(e.e1); if (d >= 0.5) meA++; else if (d <= -0.5) fA++; });
+  const chips = list => list.map(e => `<span class="chip">${esc(e.name)} <b>${fe1(e.e1)}</b></span>`).join('');
+  view.innerHTML = `
+    <div class="card vs"><div class="vs-names"><span class="me-c">You</span><span class="mut">vs</span><span class="fr-c">${fn}</span></div>
+      <div class="mut small center">${fn}'s snapshot from ${fdate(f.t, true)} &middot; their units: ${f.unit}, shown in ${u}</div>
+      <div class="stats3 mt">${stat('You ahead', meA)}${stat(fn + ' ahead', fA)}${stat('In common', both.length)}</div>
+      ${cmp.saved ? `<div class="row gap"><span class="mut small grow">Saved in Friends. Opening a newer link from ${fn} updates it.</span><button class="btn-danger sm" data-action="delFriendCur">Delete</button></div>` : `<button class="btn-primary btn-block" data-action="saveFriend">Save ${fn} to Friends</button>`}</div>
+    ${both.length ? '' : '<p class="mut center">No lifts in common yet. Names are matched ignoring case and extra spaces.</p>'}
+    ${both.sort((a, b) => b[0].e1 + b[1].e1 - a[0].e1 - a[1].e1).map(([m, e]) => {
+      const d = toD(m.e1) - toD(e.e1), badge = Math.abs(d) < 0.5 ? '<span class="b gray">Tied</span>' : d > 0 ? `<span class="b">You +${Math.round(d)} ${u}</span>` : `<span class="b blue">${fn} +${Math.round(-d)} ${u}</span>`;
+      const mx1 = Math.max(m.e1, e.e1), mx2 = Math.max(m.topW, e.topW);
+      return `<div class="card cmpx"><div class="row between gap"><div class="h3">${esc(m.name)}</div>${badge}</div>
+        <div class="lbl mt">Estimated 1RM</div>${bar('You', 'me', m.e1, mx1, fe1(m.e1) + ' ' + u)}${bar(f.name, 'fr', e.e1, mx1, fe1(e.e1) + ' ' + u)}
+        <div class="lbl mt">Heaviest set</div>${bar('You', 'me', m.topW, mx2, (m.topW > 0 ? fw(m.topW) : 'BW') + ' &times; ' + m.topR)}${bar(f.name, 'fr', e.topW, mx2, (e.topW > 0 ? fw(e.topW) : 'BW') + ' &times; ' + e.topR)}
+        <div class="row between mt"><div class="lbl">e1RM history</div><div class="legend"><span class="lg e">You</span><span class="lg t">${fn}</span></div></div>${dualChart(m.hist, e.hist)}
+        <div class="mut small">Best session volume: you ${fvol(m.vol)} &middot; ${fn} ${fvol(e.vol)} ${u}</div></div>`;
+    }).join('')}
+    ${onlyMe.length ? `<div class="card"><div class="h3">Only you log</div><div class="mt">${chips(onlyMe)}</div></div>` : ''}
+    ${onlyF.length ? `<div class="card"><div class="h3">Only ${fn} logs</div><div class="mt">${chips(onlyF)}</div><p class="mut small">Best e1RM in ${u}.</p></div>` : ''}`;
+}
+async function buildShare() {
+  const body = $('#shareBody'); if (!body) return;
+  const snap = mySnapshot();
+  if (!snap.x.length) { body.innerHTML = '<p class="mut">Log at least one workout first so there is something to compare.</p>'; return; }
+  const url = location.origin + location.pathname + '#compare=' + await encodeSnap(snap);
+  let qr; try { qr = QR.svg(url); } catch (e) { qr = '<p class="mut center">Too many lifts for a QR code. Use the link instead.</p>'; }
+  body.innerHTML = `<div class="qrbox">${qr}</div><p class="mut small center">Point a phone camera at it &middot; ${snap.x.length} lifts &middot; ${url.length}-character link</p>
+    <input id="shareUrl" readonly value="${esc(url)}" aria-label="Share link">
+    <div class="row gap mt">${navigator.share ? '<button class="btn-primary grow" data-action="shareNative">Share&hellip;</button>' : ''}<button class="grow${navigator.share ? '' : ' btn-primary'}" data-action="copyLink">Copy link</button></div>
+    <p class="mut small">This is a snapshot of today's numbers. It doesn't update by itself, so send a fresh link after new PRs. When your friend opens it, their saved copy updates.</p>`;
+}
+const A2 = {
+  shareStats: () => {
+    openSheet(`<div class="sheet-h"><h2>Share my stats</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
+      <label>Your display name<input id="shareName" maxlength="40" value="${esc(S.settings.displayName || '')}" placeholder="e.g. Bello" autocomplete="off"></label>
+      <div id="shareBody" class="mt">${S.settings.displayName ? '<p class="mut center">Building link&hellip;</p>' : '<button class="btn-primary btn-block" data-action="shareGo">Create my link</button>'}</div>`, 'tall');
+    sheetCtx = { type: 'share' };
+    $('#shareName').addEventListener('change', () => { if (S.settings.displayName) A2.shareGo(); });
+    if (S.settings.displayName) buildShare();
+  },
+  shareGo: () => {
+    const n = $('#shareName').value.replace(/[\u0000-\u001f<>"'`&\\]/g, '').trim().slice(0, 40);
+    if (!n) { toast('Enter a display name'); $('#shareName').focus(); return; }
+    S.settings.displayName = n; save(); buildShare();
+  },
+  shareNative: async () => { const url = $('#shareUrl').value; try { await navigator.share({ title: 'My lifts on Overload', text: `Compare lifts with ${S.settings.displayName}`, url }); } catch (e) { } },
+  copyLink: async () => {
+    const inp = $('#shareUrl');
+    try { await Promise.race([navigator.clipboard.writeText(inp.value), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1200))]); } catch (e) { inp.focus(); inp.select(); try { document.execCommand('copy'); } catch (_) { } }
+    toast('Link copied');
+  },
+  openFriend: b => { const f = loadFriends()[+b.dataset.k]; if (!f) return; cmp = { f, saved: true }; tab = 'compare'; render(); scrollTo(0, 0); },
+  delFriend: b => { const fr = loadFriends(), f = fr[+b.dataset.k]; if (!f || !confirm(`Remove ${f.name} from Friends?`)) return; fr.splice(+b.dataset.k, 1); saveFriends(fr); render(); },
+  saveFriend: () => {
+    if (!cmp || !cmp.f) return;
+    const fr = loadFriends(), k = fr.findIndex(x => sameFriend(x, cmp.f));
+    if (k >= 0) fr[k] = cmp.f; else fr.push(cmp.f);
+    saveFriends(fr); cmp.saved = true; render(); toast(`${cmp.f.name} saved to Friends`);
+  },
+  delFriendCur: () => {
+    if (!cmp || !cmp.f || !confirm(`Remove ${cmp.f.name} from Friends?`)) return;
+    saveFriends(loadFriends().filter(x => !sameFriend(x, cmp.f))); cmp = null; tab = 'progress'; render();
+  }
+};
 
 /* ---------- actions ---------- */
 const A = {
@@ -774,9 +1049,10 @@ const A = {
   },
   import: () => $('#importFile').click(),
   install: async () => { if (!deferredInstall) return; deferredInstall.prompt(); try { await deferredInstall.userChoice; } catch (e) { } deferredInstall = null; render(); },
-  reset: () => { if (!confirm('Erase ALL workouts, exercises and templates on this phone? Export a backup first if you might want them.')) return; S = freshState(); save(); stopTimer(); syncWake(); render(); toast('All data erased'); }
+  reset: () => { if (!confirm('Erase ALL workouts, exercises and templates on this phone? Export a backup first if you might want them.')) return; S = freshState(); localStorage.removeItem(FKEY); save(); stopTimer(); syncWake(); render(); toast('All data erased'); }
 };
 
+Object.assign(A, A2);
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-action]'); if (!b || b.disabled) return;
   const fn = A[b.dataset.action]; if (!fn) return;
@@ -827,7 +1103,7 @@ addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInsta
 addEventListener('storage', e => { if (e.key === KEY) { S = load(); render(); } });
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
-render(); tick(); syncWake();
+render(); tick(); syncWake(); handleHash();
 </script>
 </body>
 </html>
