@@ -173,6 +173,9 @@ details.hist[open] summary{margin-bottom:6px}
 .b.blue{background:var(--acc2);color:#00131f}.b.gray{background:#2a2f3a;color:var(--text)}
 .cmpx .h3{min-width:0}
 .chip{display:inline-block;background:var(--card2);border-radius:999px;padding:6px 10px;margin:4px 4px 0 0;font-size:13px}
+.mode-banner{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;background:#13202b;border:1px solid #23435c}
+.mode-banner.resume{background:#1d1a14;border-color:#3a3020}
+.resume-card{display:flex;align-items:center;gap:12px;border-color:#6b4a20;background:#21180f}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -257,7 +260,7 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) { toast('Could not save - storage full? Export a backup.'); }
 }
-save();
+if (!localStorage.getItem(KEY)) save(); // only seed brand-new installs; never rewrite existing data on load
 
 /* ---------- units & math ---------- */
 const U = () => S.settings.unit;
@@ -300,8 +303,10 @@ function dlt(nv, ov) {
 }
 
 /* ---------- PRs & suggestions ---------- */
-function entryPRs(en) {
-  const hist = sessionsFor(en.exId);
+function histBefore(exId) { const a = S.active; return a ? sessionsFor(exId).filter(s => s.date < a.start && s.wid !== a.id) : sessionsFor(exId); }
+function entryPRs(en, before, exclude) {
+  if (before === undefined) { before = S.active ? S.active.start : Infinity; exclude = S.active ? S.active.id : null; }
+  const hist = sessionsFor(en.exId).filter(s => s.date < before && s.wid !== exclude);
   const prior = hist.flatMap(s => s.sets);
   let bw = prior.reduce((m, s) => Math.max(m, s.w), 0), be = prior.reduce((m, s) => Math.max(m, e1(s.w, s.r)), 0);
   const bv = hist.reduce((m, s) => Math.max(m, vol(s.sets)), 0);
@@ -323,9 +328,9 @@ function entryPRs(en) {
   const dv = vol(en.sets.filter(isDone));
   return { per, volPR: hist.length > 0 && dv > bv + 1e-6, vol: dv };
 }
-function suggest(ex) {
+function suggest(ex, hist) {
   const [mn, mx] = repRange(ex), inc = incD(ex), u = U();
-  const hist = sessionsFor(ex.id);
+  hist = hist || sessionsFor(ex.id);
   if (!hist.length) return { kind: 'new', text: `First session: pick a weight you can do for ${mn}-${mx} reps with 1-2 reps left in the tank.`, w: null, r: null };
   const working = sets => { const top = Math.max(...sets.map(s => s.w)); return { top, sets: sets.filter(s => s.w >= top * 0.9 - 1e-6) }; };
   const last = working(hist[hist.length - 1].sets);
@@ -398,7 +403,7 @@ function renderTrain() {
     const wk = weekStats();
     const prs = S.workouts.slice().reverse().flatMap(w => (w.prs || []).map(p => ({ ...p, date: w.start }))).slice(0, 6);
     view.innerHTML = `
-      <div class="card hero"><div class="h2">Ready to lift?</div>
+      ${resumeCardHTML()}<div class="card hero"><div class="h2">Ready to lift?</div>
         <p class="mut">Start a split or an empty session. Last time's numbers fill in automatically, so you just have to beat them.</p>
         <button class="btn-primary btn-block" data-action="startEmpty">Start empty workout</button></div>
       <div class="stats3">${stat('This week', wk.n)}${stat('Sets', wk.sets)}${stat('Volume', fvol(wk.vol))}</div>
@@ -411,11 +416,13 @@ function renderTrain() {
     return;
   }
   view.innerHTML = `
+    ${a.mode ? `<div class="mode-banner ${a.mode}">${a.mode === 'edit' ? `Editing your ${esc(fdate(a.start, true))} workout. Nothing changes until you tap <b>Save changes</b>.` : 'Workout resumed. Keep logging, then tap <b>Finish workout</b> again.'}</div>` : ''}
     <div class="card wk-head"><input class="wk-name" data-field="wkname" value="${esc(a.name)}" aria-label="Workout name">
-      <div class="mut small" style="padding:0 2px"><span id="elapsed">${mmss((Date.now() - a.start) / 1000)}</span> &middot; <span id="wkSummary"></span></div></div>
+      <div class="mut small row gap" style="padding:0 2px;flex-wrap:wrap">${a.mode === 'edit' ? `<label class="row gap" style="font-size:13px">Date <input type="date" data-field="wkdate" value="${dateVal(a.start)}" max="${dateVal(Date.now())}" style="width:auto;min-height:38px;font-size:15px;margin:0"></label>` : `<span id="elapsed">${mmss((Date.now() - a.start) / 1000)}</span>`} <span>&middot;</span> <span id="wkSummary"></span></div></div>
     ${a.entries.map((en, i) => cardHTML(en, i)).join('')}
     <button class="btn-ghost btn-block" data-action="addExercise">+ Add exercise</button>
-    <div class="row gap mt"><button class="btn-danger" data-action="discard" style="min-height:54px">Discard</button><button class="btn-primary grow" data-action="finish" style="min-height:54px;font-size:17px">Finish workout</button></div>`;
+    <div class="row gap mt"><button class="btn-danger" data-action="discard" style="min-height:54px">${a.mode ? 'Cancel' : 'Discard'}</button><button class="btn-primary grow" data-action="finish" style="min-height:54px;font-size:17px">${a.mode === 'edit' ? 'Save changes' : 'Finish workout'}</button></div>
+    ${a.mode === 'edit' ? `<button class="btn-danger btn-block mt" data-action="delWorkout" data-id="${a.id}">Delete this workout</button>` : ''}`;
   updateSummary();
 }
 function lastTplText(t) {
@@ -429,8 +436,8 @@ function updateSummary() {
 }
 function cardHTML(en, i) {
   const ex = exOf(en.exId) || { id: en.exId, name: '(deleted)', type: 'upper' };
-  const [mn, mx] = repRange(ex), hist = sessionsFor(en.exId), last = hist[hist.length - 1];
-  const P = entryPRs(en), sg = suggest(ex), ls = last ? sessStats(last.sets) : null, inc = incD(ex);
+  const [mn, mx] = repRange(ex), hist = histBefore(en.exId), last = hist[hist.length - 1];
+  const P = entryPRs(en), sg = suggest(ex, hist), ls = last ? sessStats(last.sets) : null, inc = incD(ex);
   const anyPR = P.per.some(t => t.length) || P.volPR;
   return `<section class="card ex${anyPR ? ' has-pr' : ''}" data-i="${i}">
     <div class="ex-h"><button class="ex-title" data-action="openEx" data-id="${ex.id}">${esc(ex.name)} <span class="chev">&rsaquo;</span></button>
@@ -467,7 +474,7 @@ function todayHTML(en, ls) {
 }
 function decorate(i) {
   const en = S.active.entries[i], card = $(`section.ex[data-i="${i}"]`); if (!card) return;
-  const P = entryPRs(en), hist = sessionsFor(en.exId), last = hist[hist.length - 1];
+  const P = entryPRs(en), hist = histBefore(en.exId), last = hist[hist.length - 1];
   en.sets.forEach((s, j) => {
     const wrap = $(`.setwrap[data-j="${j}"]`, card); if (!wrap) return;
     $('.set', wrap).classList.toggle('pr', P.per[j].length > 0);
@@ -491,9 +498,9 @@ function renderHistory() {
   view.innerHTML = `<div class="stats3">${stat('This week', wk.n)}${stat('Sets', wk.sets)}${stat('Volume', fvol(wk.vol))}</div>` +
     ws.map(w => {
       const n = w.entries.reduce((a, e) => a + e.sets.length, 0), v = w.entries.reduce((a, e) => a + vol(e.sets), 0);
-      return `<details class="card hist"><summary><div style="min-width:0"><div class="h3">${esc(w.name)}</div><div class="mut small">${fdate(w.start, true)} &middot; ${fdur((w.end || w.start) - w.start)} &middot; ${n} sets &middot; ${fvol(v)} ${U()}</div></div>${w.prs && w.prs.length ? `<span class="b">${w.prs.length} PR</span>` : ''}</summary>
+      return `<details class="card hist"><summary><div style="min-width:0"><div class="h3">${esc(w.name)}${S.active && S.active.id === w.id ? ' <span class="b blue">open</span>' : ''}</div><div class="mut small">${fdate(w.start, true)} &middot; ${fdur((w.end || w.start) - w.start)} &middot; ${n} sets &middot; ${fvol(v)} ${U()}</div></div>${w.prs && w.prs.length ? `<span class="b">${w.prs.length} PR</span>` : ''}</summary>
         ${w.entries.map(en => { const p = (w.prs || []).filter(p => p.exId === en.exId); return `<div class="hist-ex"><div class="hx-name">${esc(exName(en.exId))}${p.length ? ' <span class="b">' + [...new Set(p.flatMap(x => x.types))].join(', ') + '</span>' : ''}</div><div class="mut small">${fmtSets(en.sets)}</div></div>`; }).join('')}
-        <button class="btn-danger sm mt" data-action="delWorkout" data-id="${w.id}">Delete workout</button></details>`;
+        <div class="row gap mt"><button class="sm grow" data-action="resumeW" data-id="${w.id}">Resume</button><button class="sm grow" data-action="editW" data-id="${w.id}">Edit</button><button class="btn-danger sm grow" data-action="delWorkout" data-id="${w.id}">Delete</button></div></details>`;
     }).join('');
 }
 
@@ -564,7 +571,7 @@ function renderSettings() {
       <div class="row gap"><button class="btn-primary grow" data-action="export">Export JSON</button><button class="grow" data-action="import">Import JSON</button></div>
       <p class="mut small">Last backup: ${st.lastBackup ? fdate(st.lastBackup, true) : 'never'}</p></div>
     <div class="card"><div class="h3">Install on your phone</div><p class="mut small">iPhone: open in Safari, tap Share, then <b>Add to Home Screen</b>. Android: Chrome menu, then <b>Install app</b>. After the first load it works offline.</p>${deferredInstall ? '<button data-action="install" class="btn-primary btn-block">Install app</button>' : ''}</div>
-    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v2 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
+    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v3 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
 }
 
 /* ---------- pickers & templates ---------- */
@@ -591,7 +598,7 @@ function pickExercise(id) {
   else { openExDetail(id); }
 }
 function prefill(exId) {
-  const h = sessionsFor(exId), last = h[h.length - 1];
+  const h = histBefore(exId), last = h[h.length - 1];
   if (last) return last.sets.map(s => ({ w: s.w, r: s.r, rpe: null, done: false }));
   return [0, 1, 2].map(() => ({ w: null, r: null, rpe: null, done: false }));
 }
@@ -924,6 +931,56 @@ const A2 = {
   }
 };
 
+/* ---------- resume / edit finished workouts ---------- */
+let pendingOpen = null;
+function dateVal(ts) { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function recomputePRs() { // derive PR flags for every saved workout from the data as it is now
+  for (const w of S.workouts.slice().sort((a, b) => a.start - b.start)) {
+    const prs = [];
+    for (const en of w.entries) {
+      const P = entryPRs({ exId: en.exId, sets: en.sets.map(s => ({ ...s, done: true })) }, w.start, w.id);
+      en.sets.forEach((s, j) => { if (P.per[j].length) prs.push({ exId: en.exId, types: P.per[j], w: s.w, r: s.r }); });
+      if (P.volPR) prs.push({ exId: en.exId, types: ['Volume PR'], vol: P.vol });
+    }
+    w.prs = prs;
+  }
+}
+function commitActive() { // save S.active into history, replacing the same id (resume/edit never duplicates)
+  const a = S.active, old = S.workouts.find(w => w.id === a.id);
+  const end = a.mode === 'edit' && old ? a.start + Math.max(0, (old.end || old.start) - old.start) : Date.now();
+  const w = { ...(old || {}), id: a.id, name: (a.name || '').trim() || 'Workout', templateId: a.templateId ?? null, start: a.start, end, prs: [],
+    entries: a.entries.map(en => ({ exId: en.exId, sets: en.sets.filter(isDone).map(s => ({ w: s.w || 0, r: s.r, rpe: s.rpe ?? null })) })).filter(en => en.sets.length) };
+  S.workouts = S.workouts.filter(x => x.id !== a.id); S.workouts.push(w); S.workouts.sort((x, y) => x.start - y.start);
+  S.active = null; recomputePRs(); save();
+  return w;
+}
+function openInWorkout(id, mode) {
+  const w = S.workouts.find(x => x.id === id); if (!w) return;
+  if (S.active && S.active.id === id) { tab = 'train'; if (sheetOpen) closeSheet(); render(); return; }
+  const go = () => {
+    S.active = { id: w.id, name: w.name, templateId: w.templateId ?? null, start: w.start, mode,
+      entries: w.entries.map(en => ({ exId: en.exId, sets: en.sets.map(s => ({ w: s.w, r: s.r, rpe: s.rpe ?? null, done: true })) })) };
+    save(); syncWake(); tab = 'train'; if (sheetOpen) closeSheet(); render(); scrollTo(0, 0);
+    toast(mode === 'edit' ? 'Editing workout' : 'Workout resumed');
+  };
+  if (S.active) {
+    pendingOpen = go;
+    openSheet(`<div class="sheet-h"><h2>Workout in progress</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
+      <p class="mut">You're still in "${esc(S.active.name || 'Workout')}". What should happen to it before opening "${esc(w.name)}"?</p>
+      <div class="menu"><button class="btn-primary" data-action="conflictFinish">Finish and save it</button>
+      <button class="btn-danger" data-action="conflictDiscard">${S.active.mode ? 'Drop its unsaved changes' : 'Discard it'}</button>
+      <button data-action="closeSheet">Never mind</button></div>`);
+    return;
+  }
+  go();
+}
+function resumeCardHTML() {
+  const lw = S.workouts.slice().sort((x, y) => (y.end || y.start) - (x.end || x.start))[0]; if (!lw) return '';
+  const t = lw.end || lw.start;
+  if (Date.now() - t > 12 * 3600e3 || new Date(t).toDateString() !== new Date().toDateString()) return '';
+  return `<div class="card resume-card"><div class="grow" style="min-width:0"><div class="h3">Finished by mistake?</div><div class="mut small">${esc(lw.name)} &middot; finished ${new Date(t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div></div><button class="btn-primary" data-action="resumeW" data-id="${lw.id}">Resume</button></div>`;
+}
+
 /* ---------- actions ---------- */
 const A = {
   tab: b => { tab = b.dataset.tab; if (sheetOpen) closeSheet(); render(); scrollTo(0, 0); },
@@ -972,7 +1029,7 @@ const A = {
     save(); replaceCard(i); if (!n) toast('All sets are already done');
   },
   applySug: b => {
-    const i = +b.dataset.i, en = S.active.entries[i], sg = suggest(exOf(en.exId)); if (sg.w == null) return;
+    const i = +b.dataset.i, en = S.active.entries[i], sg = suggest(exOf(en.exId), histBefore(en.exId)); if (sg.w == null) return;
     en.sets.forEach(s => { if (!s.done) { s.w = fromD(sg.w); s.r = sg.r; } });
     save(); replaceCard(i); toast(`Set to ${r2(sg.w, 2)} ${U()} × ${sg.r}`);
   },
@@ -988,34 +1045,43 @@ const A = {
       if (P.per[j].length) { toast(`New ${P.per[j].join(' + ')}! ${s.w > 0 ? fw(s.w) + ' ' + U() : 'BW'} × ${s.r}`, 'gold'); buzz([60, 40, 60, 40, 120]); }
       else if (P.volPR && !before) { toast(`Volume PR! ${fvol(P.vol)} ${U()}`, 'gold'); buzz([60, 40, 120]); }
       else buzz(25);
-      if (S.settings.autoRest) startTimer(S.settings.rest);
+      if (S.settings.autoRest && S.active && S.active.mode !== 'edit') startTimer(S.settings.rest);
     } else { s.done = false; save(); replaceCard(i); }
   },
   finish: () => {
     const a = S.active, done = a.entries.flatMap(e => e.sets.filter(isDone)), open = a.entries.flatMap(e => e.sets.filter(s => !s.done && s.r > 0));
-    if (!done.length) { if (confirm('No sets checked off yet. Discard this workout?')) { S.active = null; save(); stopTimer(); syncWake(); render(); } return; }
-    if (open.length && !confirm(`${open.length} set(s) aren't checked off and won't be saved. Finish anyway?`)) return;
-    const prs = [];
-    for (const en of a.entries) {
-      const P = entryPRs(en);
-      en.sets.forEach((s, j) => { if (P.per[j].length) prs.push({ exId: en.exId, types: P.per[j], w: s.w, r: s.r }); });
-      if (P.volPR) prs.push({ exId: en.exId, types: ['Volume PR'], vol: P.vol });
+    if (!done.length) {
+      if (a.mode) { if (confirm('No sets are checked off. Delete this workout from history?')) { S.workouts = S.workouts.filter(w => w.id !== a.id); S.active = null; recomputePRs(); save(); stopTimer(); syncWake(); render(); toast('Workout deleted'); } return; }
+      if (confirm('No sets checked off yet. Discard this workout?')) { S.active = null; save(); stopTimer(); syncWake(); render(); } return;
     }
-    const w = { id: a.id, name: (a.name || '').trim() || 'Workout', templateId: a.templateId, start: a.start, end: Date.now(), prs,
-      entries: a.entries.map(en => ({ exId: en.exId, sets: en.sets.filter(isDone).map(s => ({ w: s.w || 0, r: s.r, rpe: s.rpe ?? null })) })).filter(en => en.sets.length) };
-    S.workouts.push(w); S.workouts.sort((x, y) => x.start - y.start); S.active = null; save();
+    if (open.length && !confirm(`${open.length} set(s) aren't checked off and won't be saved. ${a.mode === 'edit' ? 'Save' : 'Finish'} anyway?`)) return;
+    const mode = a.mode, w = commitActive();
     lastFinished = w; stopTimer(); syncWake(); render(); scrollTo(0, 0);
+    if (mode === 'edit') { toast('Changes saved'); return; }
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
-    const v = w.entries.reduce((s, e) => s + vol(e.sets), 0), n = w.entries.reduce((s, e) => s + e.sets.length, 0);
+    const prs = w.prs, v = w.entries.reduce((s, e) => s + vol(e.sets), 0), n = w.entries.reduce((s, e) => s + e.sets.length, 0);
     openSheet(`<div class="sheet-h"><h2>Workout saved</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
       <div class="prgrid">${tile('Duration', fdur(w.end - w.start))}${tile('Sets', n)}${tile('Volume', fvol(v) + ' ' + U())}${tile('PRs', prs.length)}</div>
       ${prs.length ? `<div class="card inner">${prs.map(p => `<div class="prline"><span style="font-weight:700">${esc(exName(p.exId))}</span><span class="right">${p.types.map(t => `<span class="b">${t}</span>`).join(' ')}<div class="small mt">${p.vol != null ? fvol(p.vol) + ' ' + U() : (p.w > 0 ? fw(p.w) : 'BW') + ' &times; ' + p.r}</div></span></div>`).join('')}</div>` : '<p class="mut">No PRs this time. Consistency is what sets up the next ones.</p>'}
       ${w.templateId ? '' : '<button class="btn-ghost btn-block mt" data-action="saveAsTpl">Save as template</button>'}
+      <button class="btn-ghost btn-block mt" data-action="resumeW" data-id="${w.id}">Finished by mistake? Resume</button>
       <button class="btn-primary btn-block mt" data-action="closeSheet">Done</button>`);
   },
+  resumeW: b => openInWorkout(b.dataset.id, 'resume'),
+  editW: b => openInWorkout(b.dataset.id, 'edit'),
+  conflictFinish: () => {
+    const a = S.active;
+    if (a.entries.some(e => e.sets.some(isDone))) { commitActive(); toast(`Saved "${a.name || 'Workout'}"`); } else S.active = null;
+    save(); stopTimer(); const go = pendingOpen; pendingOpen = null; if (go) go();
+  },
+  conflictDiscard: () => {
+    const a = S.active;
+    if (!a.mode && a.entries.some(e => e.sets.some(isDone)) && !confirm('Discard the workout in progress? Its logged sets will be lost.')) return;
+    S.active = null; save(); stopTimer(); const go = pendingOpen; pendingOpen = null; if (go) go();
+  },
   saveAsTpl: () => { if (!lastFinished) return; tplDraft = { isNew: true, id: uid(), name: lastFinished.name, exIds: lastFinished.entries.map(e => e.exId) }; openTplEditor(); },
-  discard: () => { if (!confirm('Discard this workout? Sets you logged will be lost.')) return; S.active = null; save(); stopTimer(); syncWake(); render(); },
-  delWorkout: b => { if (!confirm('Delete this workout from history?')) return; S.workouts = S.workouts.filter(w => w.id !== b.dataset.id); save(); render(); toast('Workout deleted'); },
+  discard: () => { if (!confirm(S.active.mode ? 'Cancel? Changes since you opened it are dropped; the saved workout stays as it was.' : 'Discard this workout? Sets you logged will be lost.')) return; S.active = null; save(); stopTimer(); syncWake(); render(); },
+  delWorkout: b => { if (!confirm('Delete this workout from history?')) return; const id = b.dataset.id; S.workouts = S.workouts.filter(w => w.id !== id); if (S.active && S.active.id === id) { S.active = null; stopTimer(); syncWake(); } recomputePRs(); save(); if (sheetOpen) closeSheet(); render(); toast('Workout deleted'); },
   newTemplate: () => { tplDraft = { isNew: true, id: uid(), name: '', exIds: [] }; openTplEditor(); },
   editTpl: b => { const t = S.templates.find(t => t.id === b.dataset.id); if (!t) return; tplDraft = { ...t, exIds: [...t.exIds], isNew: false }; openTplEditor(); },
   tplAddEx: () => openPicker('template'),
@@ -1065,6 +1131,12 @@ function onField(e) {
   if (sf) { if (e.type === 'change') onSetting(t, sf); return; }
   if (!f || !S.active) return;
   if (f === 'wkname') { S.active.name = t.value; save(); return; }
+  if (f === 'wkdate') {
+    if (e.type !== 'change' || !t.value) return;
+    const [y, m, d] = t.value.split('-').map(Number), o = new Date(S.active.start), n = new Date(y, m - 1, d, o.getHours(), o.getMinutes(), o.getSeconds());
+    if (isNaN(n) || n.getTime() > Date.now()) { toast("Date can't be in the future"); t.value = dateVal(S.active.start); return; }
+    S.active.start = n.getTime(); save(); renderTrain(); return;
+  }
   const row = t.closest('.set'); if (!row) return;
   const i = +row.dataset.i, j = +row.dataset.j, s = S.active.entries[i].sets[j];
   if (f === 'w') { const v = parseFloat(t.value.replace(',', '.')); s.w = isNaN(v) ? null : fromD(Math.max(0, v)); }
