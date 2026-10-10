@@ -1,5 +1,5 @@
 // Overload service worker: offline app shell
-const CACHE = 'overload-v3';
+const CACHE = 'overload-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
