@@ -185,6 +185,15 @@ body.timer-on #fab{bottom:calc(158px + env(safe-area-inset-bottom))}
 .day-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 4px 8px}
 .from-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--acc2);background:#132430;border-radius:999px;padding:2px 9px;margin:2px 0 4px}
 body.has-fab main{padding-bottom:84px}
+#tut{position:fixed;inset:0;z-index:200;background:#0d0f13;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 20px max(18px,env(safe-area-inset-bottom));overflow-y:auto}
+.tut-top{display:flex;justify-content:space-between;align-items:center}.tut-skip{background:none;border:0;color:var(--text);font-size:17px;font-weight:700;padding:10px 6px;min-height:44px}
+.tut-card{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:460px;margin:0 auto;width:100%}
+.tut-i{font-size:64px;line-height:1;margin-bottom:14px}.tut-card h2{font-size:30px;margin:0 0 12px}.tut-card p{font-size:19px;line-height:1.5;color:#d7dbe4;margin:0}
+.tut-s{display:block;font-size:16px;color:var(--mut);margin-top:12px}.tut-card label{display:block;font-size:15px}
+.tut-dots{display:flex;justify-content:center;gap:8px;margin:16px 0}.tut-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tut-dots i.on{background:var(--acc);width:22px;border-radius:4px}
+.tut-nav{display:flex;gap:12px}.tut-nav button{flex:1;min-height:54px;font-size:17px}.tut-nav button:disabled{opacity:.35}
+#hint{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;background:#1b3347;border:1px solid var(--acc2);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:15px;box-shadow:0 8px 24px #0008}
+#hint>div{flex:1}.tut-note{border-color:var(--acc2)}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -431,11 +440,55 @@ function weekStats() {
 }
 
 /* ---------- render ---------- */
+/* ---------- onboarding ---------- */
+const TUTKEY = 'overload.tut';
+function tutGet() { try { const t = JSON.parse(localStorage.getItem(TUTKEY) || '{}'); return t && typeof t === 'object' ? t : {}; } catch (e) { return {}; } }
+function tutSet(patch) { try { localStorage.setItem(TUTKEY, JSON.stringify({ ...tutGet(), ...patch })); } catch (e) { } }
+const TUT = [
+  { i: '👋', h: 'Welcome to Overload', p: 'This app helps you get stronger by beating your last workout a little at a time. Everything stays on your phone. No account needed.' },
+  { i: '🏋️', h: 'Start a workout', p: 'Tap <b>Start empty workout</b>, or pick a template (a saved list of exercises, like "Push day"). Then tap <b>+ Add exercise</b> and choose or type one.' },
+  { i: '✅', h: 'Log a set', p: 'Type the <b>weight</b> and <b>reps</b>, then tap the <b>✓</b> when the set is done. Next time, your last numbers fill in for you.<br><span class="tut-s"><b>RPE</b> (optional) = how hard it felt, 1 to 10. 10 means you could not do one more rep.</span>' },
+  { i: '⏱️', h: 'Rest & timers', p: 'Ticking ✓ starts a rest timer. The <b>Timer</b> button gives you a countdown or stopwatch. Planks or runs? In an exercise’s <b>⋯</b> menu, switch it to <b>time</b> mode to log minutes (and distance).' },
+  { i: '🏆', h: 'PRs & suggestions', p: 'A <b>PR</b> is a personal record: your heaviest, most reps, or best ever. The app also tells you when to <b>add weight</b>, and shows your <b>estimated max</b> (how much you could lift once).' },
+  { i: '📈', h: 'Progress & friends', p: 'The <b>Progress</b> tab charts every exercise. Tap <b>Share my stats</b> to send friends a link or QR code and compare who’s ahead. Their data never mixes with yours.' },
+  { i: '🛟', h: 'Oops-proof', p: 'Tapped Finish too early? Hit <b>Resume</b>. Any workout can be <b>edited</b> in History. Your data lives only on this phone, so <b>Export a backup</b> in Settings now and then.' },
+  { setup: true, i: '🚀', h: 'Quick setup', p: 'You can change these later in Settings.' }
+];
+let tutI = 0;
+function tutOpen(replay) { tutI = 0; tutSet({ fresh: replay ? tutGet().fresh : 1 }); let el = $('#tut'); if (!el) { el = document.createElement('div'); el.id = 'tut'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Tutorial'); document.body.appendChild(el); tutSwipe(el); } tutDraw(); }
+function tutDraw() {
+  const el = $('#tut'), c = TUT[tutI], last = tutI === TUT.length - 1, u = U();
+  el.innerHTML = `<div class="tut-top"><span class="mut small">${tutI + 1} / ${TUT.length}</span><button class="tut-skip" data-action="tutSkip">Skip</button></div>
+    <div class="tut-card"><div class="tut-i">${c.i}</div><h2>${c.h}</h2><p>${c.p}</p>
+    ${c.setup ? `<div class="h3 mt">Units</div><div class="seg">${['lb', 'kg'].map(x => `<button data-action="tutUnit" data-u="${x}" class="${u === x ? 'on' : ''}">${x}</button>`).join('')}</div>
+      <label class="mt">Your name (shown to friends)<input id="tutName" maxlength="40" value="${esc(S.settings.displayName || '')}" placeholder="optional" autocomplete="off"></label>
+      <button class="btn-primary btn-block mt" data-action="tutStart">Start your first workout</button>
+      <button class="btn-ghost btn-block mt" data-action="tutDone">I’ll look around first</button>` : ''}</div>
+    <div class="tut-dots">${TUT.map((_, k) => `<i class="${k === tutI ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="tut-nav"><button data-action="tutBack"${tutI ? '' : ' disabled'}>Back</button>${last ? '' : '<button class="btn-primary" data-action="tutNext">Next</button>'}</div>`;
+}
+function tutSwipe(el) { let x0 = null; el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); el.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50 && !(e.target.closest && e.target.closest('input'))) { tutI = Math.max(0, Math.min(TUT.length - 1, tutI + (dx < 0 ? 1 : -1))); tutDraw(); } }); }
+function tutClose(start) {
+  const n = $('#tutName'); if (n && n.value.trim() && n.value.trim() !== (S.settings.displayName || '')) { S.settings.displayName = n.value.trim().slice(0, 40); save(); }
+  tutSet({ seen: 1, noted: 1 }); const el = $('#tut'); if (el) el.remove(); tab = 'train';
+  if (start && !S.active) A.startEmpty(); else render();
+}
+function tutHints() {
+  const t = tutGet(), old = $('#hint'); if (old) old.remove();
+  if (!t.fresh || $('#tut')) return;
+  let key = null, msg = '';
+  if (tab === 'train' && S.active && !(t.hints || {}).wk && S.active.entries.length) { key = 'wk'; msg = 'Tip: tap <b>✓</b> when a set is done. The rest timer starts by itself. Need a countdown or stopwatch? Tap <b>Timer</b> at the bottom right.'; }
+  else if (tab === 'history' && S.workouts.length && !(t.hints || {}).hist) { key = 'hist'; msg = 'Tip: open a workout to <b>Resume</b> or <b>Edit</b> it, even if you finished by mistake.'; }
+  else if (tab === 'progress' && S.workouts.length && !(t.hints || {}).prog) { key = 'prog'; msg = 'Tip: tap any exercise for its chart and records. <b>Share my stats</b> lets you compare with friends.'; }
+  if (!key) return;
+  const h = document.createElement('div'); h.id = 'hint'; h.innerHTML = `<div>${msg}</div><button class="sm" data-action="hintOk" data-k="${key}">Got it</button>`; document.body.appendChild(h);
+}
 function render() {
   $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   $('#title').innerHTML = { train: S.active ? 'Workout' : '<span class="logo">Over</span>load', history: 'History', progress: 'Progress', settings: 'Settings', compare: 'Compare' }[tab];
   ({ train: renderTrain, history: renderHistory, progress: renderProgress, settings: renderSettings, compare: renderCompare })[tab]();
   if (typeof tmTick === 'function') try { tmTick(); } catch (e) { }
+  try { tutHints(); } catch (e) { }
 }
 
 function renderTrain() {
@@ -444,7 +497,7 @@ function renderTrain() {
     const wk = weekStats();
     const prs = S.workouts.slice().reverse().flatMap(w => (w.prs || []).map(p => ({ ...p, date: w.start }))).slice(0, 6);
     view.innerHTML = `
-      ${resumeCardHTML()}<div class="card hero"><div class="h2">Ready to lift?</div>
+      ${resumeCardHTML()}${!tutGet().noted && S.workouts.length ? '<div class="card tut-note"><div><b>New:</b> a quick tutorial is available, handy for friends.</div><div class="row gap mt"><button class="btn-primary sm" data-action="tutReplay">Show me</button><button class="sm btn-ghost" data-action="tutNoteX">Dismiss</button></div></div>' : ''}<div class="card hero"><div class="h2">Ready to lift?</div>
         <p class="mut">Start a split or an empty session. Last time's numbers fill in automatically, so you just have to beat them.</p>
         <button class="btn-primary btn-block" data-action="startEmpty">Start empty workout</button>
         <button class="btn-ghost btn-block mt" data-action="openTimer">Timer / stopwatch</button></div>
@@ -620,7 +673,8 @@ function renderSettings() {
       <div class="row gap"><button class="btn-primary grow" data-action="export">Export JSON</button><button class="grow" data-action="import">Import JSON</button></div>
       <p class="mut small">Last backup: ${st.lastBackup ? fdate(st.lastBackup, true) : 'never'}</p></div>
     <div class="card"><div class="h3">Install on your phone</div><p class="mut small">iPhone: open in Safari, tap Share, then <b>Add to Home Screen</b>. Android: Chrome menu, then <b>Install app</b>. After the first load it works offline.</p>${deferredInstall ? '<button data-action="install" class="btn-primary btn-block">Install app</button>' : ''}</div>
-    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v5 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
+    <div class="card"><div class="h3">Tutorial</div><p class="mut small">A quick walkthrough of how the app works.</p><button class="btn-block" data-action="tutReplay">Replay tutorial</button></div>
+    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v6 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
 }
 
 /* ---------- pickers & templates ---------- */
@@ -1297,7 +1351,15 @@ const A = {
   reset: () => { if (!confirm('Erase ALL workouts, exercises and templates on this phone? Export a backup first if you might want them.')) return; S = freshState(); localStorage.removeItem(FKEY); save(); stopTimer(); syncWake(); render(); toast('All data erased'); }
 };
 
-Object.assign(A, A2, A3, A4);
+Object.assign(A, A2, A3, A4, {
+  tutNext: () => { tutI = Math.min(TUT.length - 1, tutI + 1); tutDraw(); }, tutBack: () => { tutI = Math.max(0, tutI - 1); tutDraw(); },
+  tutSkip: () => tutClose(false), tutDone: () => tutClose(false), tutStart: () => tutClose(true),
+  tutUnit: b => { S.settings.unit = b.dataset.u; save(); tutDraw(); },
+  tutReplay: () => { tutSet({ noted: 1 }); if (sheetOpen) closeSheet(); tutOpen(true); render(); },
+  tutNoteX: () => { tutSet({ noted: 1 }); render(); },
+  hintOk: b => { const t = tutGet(); tutSet({ hints: { ...(t.hints || {}), [b.dataset.k]: 1 } }); const h = $('#hint'); if (h) h.remove(); }
+});
+{ const t = tutGet(); if (!t.seen && !S.workouts.length && !S.active) setTimeout(() => tutOpen(false), 0); }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-action]'); if (!b || b.disabled) return;
   const fn = A[b.dataset.action]; if (!fn) return;
