@@ -1,13 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#0d0f13"/>
-  <g transform="translate(64 64) scale(.75)">
-    <g fill="#ff7a1a">
-      <rect x="98" y="200" width="42" height="156" rx="12"/>
-      <rect x="60" y="230" width="32" height="96" rx="10"/>
-      <rect x="372" y="200" width="42" height="156" rx="12"/>
-      <rect x="420" y="230" width="32" height="96" rx="10"/>
-      <rect x="140" y="266" width="232" height="24" rx="8"/>
-    </g>
-    <path d="M256 74 L330 160 H284 V232 H228 V160 H182 Z" fill="#ffc94a"/>
-  </g>
-</svg>
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3dc8e"/><stop offset=".55" stop-color="#C9A84C"/><stop offset="1" stop-color="#9c7c2c"/></linearGradient>
+<radialGradient id="r" cx=".75" cy=".15" r=".9"><stop offset="0" stop-color="#2a2210"/><stop offset=".6" stop-color="#0a0a0a"/></radialGradient></defs>
+<rect width="512" height="512" fill="url(#r)"/>
+<g transform="translate(56.31999999999999 56.31999999999999) scale(0.78)">
+<rect x="58" y="58" width="396" height="396" rx="10" fill="none" stroke="url(#g)" stroke-width="7"/>
+<rect x="76" y="76" width="360" height="360" rx="6" fill="none" stroke="#C9A84C" stroke-opacity=".55" stroke-width="2.5"/>
+<text x="256" y="150" text-anchor="middle" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="800" font-size="30" letter-spacing="9" fill="#C9A84C">SOY PAPÁ</text>
+<text x="252" y="292" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-style="italic" font-weight="700" font-size="158" fill="url(#g)">Papá</text>
+<text x="260" y="378" text-anchor="middle" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="800" font-size="78" letter-spacing="15" fill="#f4efe4">STRONG</text>
+</g></svg>

@@ -3,35 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d0f13">
+<meta name="theme-color" content="#0a0a0a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Overload">
-<meta name="description" content="Progressive overload tracker: log lifts, beat last session, track PRs. Works offline.">
-<title>Overload - Progressive Overload Tracker</title>
+<meta name="apple-mobile-web-app-title" content="Papá Strong">
+<meta name="description" content="Papá Strong by Soy Papá: log your lifts, beat last session, earn dad badges, track PRs. Works offline. For the papá who shows up.">
+<title>Papá Strong · by Soy Papá</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="preload" href="fonts/BarlowCondensed-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-:root{--bg:#0d0f13;--card:#161920;--card2:#1f232c;--line:#2a2f3a;--text:#eef1f6;--mut:#8f97a8;--acc:#ff7a1a;--acc2:#4cc2ff;--good:#3ddc84;--bad:#ff5d5d;--gold:#ffc94a;--r:16px;color-scheme:dark}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/BarlowCondensed-700.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/BarlowCondensed-800.woff2) format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:700;font-display:swap;src:url(fonts/CormorantGaramond-700i.woff2) format('woff2')}
+:root{--bg:#0a0a0a;--card:#141414;--card2:#1d1c1a;--line:#2b2924;--text:#f4efe4;--mut:#9d978b;--acc:#C9A84C;--acc2:#d9d2c2;--good:#5fcf8a;--bad:#ff6b5d;--gold:#E8C96A;--r:16px;--cond:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;--serif:'Cormorant Garamond',Georgia,serif;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%}
 body{padding-bottom:calc(84px + env(safe-area-inset-bottom));min-height:100vh;overscroll-behavior-y:none}
 body.timer-on{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:calc(8px + env(safe-area-inset-top)) 14px 8px 16px;background:rgba(13,15,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-header h1{font-size:21px;margin:0;font-weight:800;letter-spacing:.2px}
-header h1 .logo{color:var(--acc)}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:calc(8px + env(safe-area-inset-top)) 14px 8px 16px;background:rgba(10,10,10,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header h1{font-size:23px;margin:0;font-weight:800;letter-spacing:.03em;font-family:var(--cond)}
+.brand{display:inline-flex;align-items:baseline;gap:7px;line-height:1}.brand .bp{font-family:var(--serif);font-style:italic;font-weight:700;color:var(--acc);font-size:27px;letter-spacing:-.01em}.brand .bs{font-family:var(--cond);font-weight:800;letter-spacing:.2em;font-size:17px;color:var(--text)}
+.brand-by{display:block;font-family:var(--cond);font-weight:700;font-size:10px;letter-spacing:.32em;color:var(--acc);margin-top:3px;text-transform:uppercase}
+h2,.h2,.tut-card h2,.sheet-h h2{font-family:var(--cond);letter-spacing:.02em}.h2{font-size:27px}h2{font-size:21px}.sheet-h h2{font-size:23px}.tut-card h2{font-size:34px}
+.btn-primary,.btn-block{font-family:var(--cond);letter-spacing:.05em;font-size:19px}.btn-block{text-transform:uppercase}
+.lbl,.sets-h,#tabs button{font-family:var(--cond);letter-spacing:.1em}#tabs button{font-size:13px;text-transform:uppercase}
+.hero{background:radial-gradient(120% 90% at 100% 0%,#2a2210 0%,#141414 55%);border-color:#3b3220}
 main{padding:12px 12px 20px;max-width:560px;margin:0 auto}
 h2{font-size:18px;margin:0}
 .h2{font-size:22px;font-weight:800}
 .h3{font-size:17px;font-weight:750}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
-.card.inner{background:var(--card2);border-color:#2c313c}
+.card.inner{background:var(--card2);border-color:#2e2b25}
 button{font:inherit;color:inherit;border:0;background:var(--card2);border-radius:12px;min-height:44px;padding:0 14px;cursor:pointer;touch-action:manipulation;font-weight:600}
 button:active{transform:scale(.97);filter:brightness(1.15)}
 button:disabled{opacity:.35}
-.btn-primary{background:var(--acc);color:#140a00;font-weight:800}
+.btn-primary{background:linear-gradient(180deg,#d8b85c,#C9A84C);color:#141008;font-weight:800}
 .btn-block{display:block;width:100%;min-height:54px;font-size:17px}
 .btn-ghost{background:transparent;border:1px solid var(--line)}
 .btn-danger{background:transparent;border:1px solid #5b2a2d;color:var(--bad)}
@@ -40,7 +49,7 @@ button:disabled{opacity:.35}
 .icon-btn svg{width:24px;height:24px}
 input,select{font:inherit;font-size:17px;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:12px;min-height:46px;padding:0 12px;width:100%;-webkit-appearance:none;appearance:none}
 input:focus,select:focus{outline:2px solid var(--acc);outline-offset:-1px}
-input::placeholder{color:#5c6475}
+input::placeholder{color:#6a655b}
 label{display:block;font-size:13px;color:var(--mut);font-weight:600}
 label input,label select{margin-top:5px;color:var(--text)}
 .tog{display:flex;align-items:center;gap:12px;font-size:16px;color:var(--text);min-height:48px;font-weight:500}
@@ -53,9 +62,9 @@ label input,label select{margin-top:5px;color:var(--text)}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .seg{display:flex;background:var(--card2);border-radius:12px;padding:3px;gap:3px}
 .seg button{flex:1;background:transparent;min-height:42px}
-.seg button.on{background:var(--acc);color:#140a00;font-weight:800}
+.seg button.on{background:var(--acc);color:#141008;font-weight:800}
 .sec-h{display:flex;align-items:center;justify-content:space-between;margin:18px 4px 10px}
-#tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(17,19,24,.97);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:4px 6px calc(4px + env(safe-area-inset-bottom))}
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(12,12,12,.97);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:4px 6px calc(4px + env(safe-area-inset-bottom))}
 #tabs button{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:60px;font-size:11px;font-weight:700;color:var(--mut);border-radius:14px}
 #tabs svg{width:26px;height:26px}
 #tabs button.on{color:var(--acc)}
@@ -108,12 +117,12 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .card.ex.has-pr{border-color:#6b5520;box-shadow:0 0 0 1px #6b552044,0 0 24px #ffc94a14}
 #sheetWrap{position:fixed;inset:0;z-index:50}
 #sheetWrap .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;transition:opacity .2s}
-#sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#12151b;border-top:1px solid var(--line);border-radius:22px 22px 0 0;padding:6px 14px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .22s ease;max-width:600px;margin:0 auto}
+#sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#121110;border-top:1px solid #3a3426;border-radius:22px 22px 0 0;padding:6px 14px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .22s ease;max-width:600px;margin:0 auto}
 #sheet.tall{max-height:94vh}
-#sheet::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:#3a404c;margin:4px auto 6px}
+#sheet::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:#4a4334;margin:4px auto 6px}
 #sheetWrap.open .backdrop{opacity:1}
 #sheetWrap.open #sheet{transform:none}
-.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;position:sticky;top:-6px;background:#12151b;z-index:2;padding:4px 0}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;position:sticky;top:-6px;background:#121110;z-index:2;padding:4px 0}
 .sheet-h h2{font-size:20px}
 .pick{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;background:transparent;border-bottom:1px solid var(--line);border-radius:0;min-height:54px;padding:0 4px;font-weight:600}
 .pick .small{font-weight:500}
@@ -127,8 +136,8 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .rec span:first-child{min-width:80px;font-weight:700}
 .hrow .small{margin-top:2px}
 .chart{width:100%;height:auto;display:block;margin-top:6px}
-.chart .gl{stroke:#2b303b;stroke-width:1}
-.chart .ax{fill:#8f97a8;font-size:11px;font-family:inherit}
+.chart .gl{stroke:#2a2823;stroke-width:1}
+.chart .ax{fill:#9d978b;font-size:11px;font-family:inherit}
 .chart polyline{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
 .chart polyline.e{stroke:var(--acc)}.chart polyline.t{stroke:var(--acc2)}
 .chart circle.e{fill:var(--acc)}.chart circle.t{fill:var(--acc2)}
@@ -146,19 +155,19 @@ details.hist[open] summary{margin-bottom:6px}
 .hist-ex{padding:8px 0;border-top:1px solid var(--line)}
 .hx-name{font-weight:700}
 .empty{text-align:center;padding:28px 18px}
-#timerbar{position:fixed;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:25;display:flex;align-items:center;gap:8px;background:#1c2029;border:1px solid #343a47;border-radius:18px;padding:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:560px;margin:0 auto}
+#timerbar{position:fixed;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:25;display:flex;align-items:center;gap:8px;background:#1a1916;border:1px solid #3a3628;border-radius:18px;padding:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:560px;margin:0 auto}
 #timerbar[hidden]{display:none}
-#tprog{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ff7a1a33,#ff7a1a14);z-index:0;transition:width .25s linear}
+#tprog{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#C9A84C40,#C9A84C14);z-index:0;transition:width .25s linear}
 #timerbar>:not(#tprog){position:relative;z-index:1}
-#timerbar button{min-height:48px;min-width:56px;background:#2a2f3a}
+#timerbar button{min-height:48px;min-width:56px;background:#2a2823}
 .tmid{flex:1;text-align:center}
 #tleft{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
 .presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .presets button{min-height:60px;font-size:18px}
-#toast{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;z-index:60;background:#232833;border:1px solid #3a4150;color:var(--text);padding:12px 18px;border-radius:14px;font-weight:700;pointer-events:none;transition:all .25s;max-width:92vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#toast{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;z-index:60;background:#1f1d19;border:1px solid #3d382c;color:var(--text);padding:12px 18px;border-radius:14px;font-weight:700;pointer-events:none;transition:all .25s;max-width:92vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.gold{background:var(--gold);color:#241a00;border-color:var(--gold)}
-#toast.acc{background:var(--acc);color:#140a00;border-color:var(--acc)}
+#toast.acc{background:var(--acc);color:#141008;border-color:var(--acc)}
 .qrbox{background:#fff;border-radius:16px;padding:10px;max-width:290px;margin:4px auto}
 .qr{display:block;width:100%;height:auto}
 #shareUrl{font-size:13px;color:var(--mut)}
@@ -167,33 +176,67 @@ details.hist[open] summary{margin-bottom:6px}
 .me-c{color:var(--acc)}.fr-c{color:var(--acc2);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar{display:grid;grid-template-columns:62px 1fr 88px;gap:8px;align-items:center;margin-top:6px;font-size:14px}
 .bar .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.track{height:14px;background:#262b35;border-radius:8px;overflow:hidden}
+.track{height:14px;background:#262420;border-radius:8px;overflow:hidden}
 .fill{height:100%;border-radius:8px}.fill.me{background:var(--acc)}.fill.fr{background:var(--acc2)}
 .bar .val{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.b.blue{background:var(--acc2);color:#00131f}.b.gray{background:#2a2f3a;color:var(--text)}
+.b.blue{background:var(--acc2);color:#141414}.b.gray{background:#2a2823;color:var(--text)}
 .cmpx .h3{min-width:0}
 .chip{display:inline-block;background:var(--card2);border-radius:999px;padding:6px 10px;margin:4px 4px 0 0;font-size:13px}
-.mode-banner{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;background:#13202b;border:1px solid #23435c}
+.mode-banner{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;background:#17150f;border:1px solid #3b3220}
 .mode-banner.resume{background:#1d1a14;border-color:#3a3020}
 .resume-card{display:flex;align-items:center;gap:12px;border-color:#6b4a20;background:#21180f}
-#fab{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:26;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 16px;border-radius:999px;background:#2a2f3a;border:1px solid #3a4150;box-shadow:0 8px 24px rgba(0,0,0,.5);font-weight:800;font-variant-numeric:tabular-nums}
-#fab svg{width:22px;height:22px}#fab.run{background:var(--acc2);color:#00131f;border-color:var(--acc2)}
+#fab{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:26;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 16px;border-radius:999px;background:#1f1d19;border:1px solid #4a4130;box-shadow:0 8px 24px rgba(0,0,0,.5);font-weight:800;font-variant-numeric:tabular-nums}
+#fab svg{width:22px;height:22px}#fab.run{background:var(--acc);color:#141008;border-color:var(--acc)}
 body.timer-on #fab{bottom:calc(158px + env(safe-area-inset-bottom))}
 .tm-digits{font-size:76px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px;margin:14px 0 10px;line-height:1}
 .tm-big{min-height:64px;font-size:20px}
 .set input.tm{font-size:18px}
 .day-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 4px 8px}
-.from-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--acc2);background:#132430;border-radius:999px;padding:2px 9px;margin:2px 0 4px}
+.from-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--gold);background:#24201a;border-radius:999px;padding:2px 9px;margin:2px 0 4px}
 body.has-fab main{padding-bottom:84px}
-#tut{position:fixed;inset:0;z-index:200;background:#0d0f13;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 20px max(18px,env(safe-area-inset-bottom));overflow-y:auto}
+#tut{position:fixed;inset:0;z-index:200;background:#0a0a0a;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 20px max(18px,env(safe-area-inset-bottom));overflow-y:auto}
 .tut-top{display:flex;justify-content:space-between;align-items:center}.tut-skip{background:none;border:0;color:var(--text);font-size:17px;font-weight:700;padding:10px 6px;min-height:44px}
 .tut-card{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:460px;margin:0 auto;width:100%}
 .tut-i{font-size:64px;line-height:1;margin-bottom:14px}.tut-card h2{font-size:30px;margin:0 0 12px}.tut-card p{font-size:19px;line-height:1.5;color:#d7dbe4;margin:0}
 .tut-s{display:block;font-size:16px;color:var(--mut);margin-top:12px}.tut-card label{display:block;font-size:15px}
 .tut-dots{display:flex;justify-content:center;gap:8px;margin:16px 0}.tut-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tut-dots i.on{background:var(--acc);width:22px;border-radius:4px}
 .tut-nav{display:flex;gap:12px}.tut-nav button{flex:1;min-height:54px;font-size:17px}.tut-nav button:disabled{opacity:.35}
-#hint{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;background:#1b3347;border:1px solid var(--acc2);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:15px;box-shadow:0 8px 24px #0008}
-#hint>div{flex:1}.tut-note{border-color:var(--acc2)}
+#hint{position:fixed;left:12px;right:12px;bottom:calc(146px + env(safe-area-inset-bottom));z-index:60;background:#1e1a10;border:1px solid var(--acc);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:15px;box-shadow:0 8px 24px #0008}
+body.timer-on #hint{bottom:calc(222px + env(safe-area-inset-bottom))}
+#hint>div{flex:1}.tut-note{border-color:var(--acc)}
+/* Papá Strong extras */
+.eyebrow{font-family:var(--cond);font-weight:800;font-size:12px;letter-spacing:.3em;color:var(--acc);text-transform:uppercase}
+.gframe{border:1px solid var(--acc);outline:1px solid #C9A84C55;outline-offset:3px}
+.shop{position:relative;background:linear-gradient(160deg,#16130b,#0e0e0e 60%);border-color:#4a3e20;margin-top:6px}
+.shop-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.shop-name{font-family:var(--cond);font-weight:800;font-size:26px;letter-spacing:.03em;margin:6px 0 2px}
+.shop p{margin:4px 0 12px}
+a.btn-a{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:12px;font-weight:800;text-decoration:none;font-family:var(--cond);letter-spacing:.06em;font-size:17px;text-transform:uppercase}
+a.btn-a.gold{background:linear-gradient(180deg,#d8b85c,#C9A84C);color:#141008}a.btn-a.ghost{border:1px solid #4a3e20;color:var(--gold)}
+.shop-mini{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:#120f09;border:1px solid #3b3220;border-radius:14px;min-height:50px;padding:0 14px;margin:6px 0 12px;text-align:left}
+.shop-mini .eyebrow{font-size:11px}
+.foot{text-align:center;margin:22px 0 6px;color:var(--mut);font-size:12px}.foot .creed{font-family:var(--serif);font-style:italic;font-size:17px;color:#cfc6b2;margin:6px 0}
+.badge-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid #3b3220;border-radius:var(--r);padding:12px 14px;min-height:62px;margin-bottom:12px}
+.badge-row .mini{display:flex;gap:4px}.badge-row .grow{min-width:0}
+.medal{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex:none;background:radial-gradient(circle at 35% 30%,#f3dc8e,#C9A84C 55%,#8a6d22);box-shadow:0 0 0 2px #0a0a0a,0 0 0 3px #C9A84C;color:#141008}
+.medal.sm{width:30px;height:30px;font-size:15px;box-shadow:0 0 0 1px #0a0a0a,0 0 0 2px #C9A84C}
+.medal.off{background:#232220;box-shadow:0 0 0 2px #0a0a0a,0 0 0 3px #3a3628;filter:grayscale(1);opacity:.55}
+.val-h{margin:16px 2px 8px}.val-h .eyebrow{font-size:14px}.val-h .mut{font-family:var(--serif);font-style:italic;font-size:16px;color:#cfc6b2}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btile{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 10px;display:flex;gap:10px;align-items:center;min-width:0}
+.btile.on{border-color:#5a4a22;background:linear-gradient(160deg,#1f1a0e,#171614)}
+.btile b{display:block;font-size:15px;line-height:1.15}.btile .small{line-height:1.25;margin-top:2px}
+.pbar{height:5px;background:#2a2823;border-radius:3px;margin-top:6px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--acc)}
+.creed-box{text-align:center;padding:16px 12px}.creed-box .q{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.25;color:#efe6cf}
+#celebrate{position:fixed;inset:0;z-index:300;pointer-events:none;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#C9A84C33,#000a 70%);animation:cfade 3.6s ease forwards}
+#celebrate .cc{background:linear-gradient(170deg,#211a0b,#0e0d0a);border:1px solid var(--acc);outline:1px solid #C9A84C66;outline-offset:4px;border-radius:20px;padding:22px 24px;text-align:center;max-width:82vw;animation:cpop .6s cubic-bezier(.2,1.6,.4,1)}
+#celebrate .medal{width:84px;height:84px;font-size:40px;margin:0 auto 12px}
+#celebrate h3{font-family:var(--cond);font-size:30px;margin:4px 0 2px;color:var(--gold);letter-spacing:.03em}
+#celebrate i.cf{position:absolute;top:-10px;width:8px;height:14px;background:var(--acc);border-radius:2px;animation:cfall 2.8s linear forwards}
+@keyframes cfade{0%{opacity:0}8%{opacity:1}82%{opacity:1}100%{opacity:0}}
+@keyframes cpop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+@keyframes cfall{to{transform:translateY(105vh) rotate(540deg)}}
+.newb{border-color:var(--acc);background:#1b170d}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -224,6 +267,7 @@ body.has-fab main{padding-bottom:84px}
 <div id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
+<script src="es.js"></script>
 <script>
 'use strict';
 /* ---------- basics ---------- */
@@ -243,13 +287,14 @@ const SEED_EX = [
   ['Walking Lunge', 'lower', 8, 12], ['Leg Curl', 'lower', 10, 15], ['Leg Extension', 'lower', 10, 15],
   ['Hip Thrust', 'lower', 8, 12], ['Standing Calf Raise', 'lower', 10, 15]
 ];
+function detectLang() { try { const l = ((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase(); return l.startsWith('es') ? 'es' : 'en'; } catch (e) { return 'en'; } }
 function freshState() {
   const exercises = SEED_EX.map(([name, type, repMin, repMax]) => ({ id: uid(), name, type, repMin, repMax, inc: null }));
   const id = n => exercises.find(e => e.name === n).id;
   const tpl = (name, list) => ({ id: uid(), name, exIds: list.map(id) });
   return {
     version: 1,
-    settings: { unit: 'lb', inc: { lb: { upper: 5, lower: 10 }, kg: { upper: 2.5, lower: 5 } }, repMin: 8, repMax: 12, rest: 120, autoRest: true, wakeLock: true, lastBackup: null },
+    settings: { unit: 'lb', lang: detectLang(), inc: { lb: { upper: 5, lower: 10 }, kg: { upper: 2.5, lower: 5 } }, repMin: 8, repMax: 12, rest: 120, autoRest: true, wakeLock: true, lastBackup: null },
     exercises,
     templates: [
       tpl('Push', ['Bench Press', 'Overhead Press', 'Incline Dumbbell Press', 'Lateral Raise', 'Triceps Pushdown']),
@@ -279,7 +324,8 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) { toast('Could not save - storage full? Export a backup.'); }
 }
-if (!localStorage.getItem(KEY)) save(); // only seed brand-new installs; never rewrite existing data on load
+const FRESH = !localStorage.getItem(KEY);
+if (FRESH) save(); // only seed brand-new installs; never rewrite existing data on load
 
 /* ---------- units & math ---------- */
 const U = () => S.settings.unit;
@@ -322,7 +368,8 @@ function sessionsFor(exId) {
 }
 function lastDates() { const m = {}; for (const w of S.workouts) for (const en of w.entries) m[en.exId] = Math.max(m[en.exId] || 0, w.start); return m; }
 function sortedExercises() { const m = lastDates(); return [...S.exercises].sort((a, b) => (m[b.id] || 0) - (m[a.id] || 0) || a.name.localeCompare(b.name)); }
-function fdate(ts, long) { return new Date(ts).toLocaleDateString(undefined, long ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }); }
+const LOC = () => (S && S.settings && S.settings.lang === 'es') ? 'es-MX' : undefined;
+function fdate(ts, long) { return new Date(ts).toLocaleDateString(LOC(), long ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }); }
 function fdur(ms) { const m = Math.max(1, Math.round(ms / 60000)); return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`; }
 function mmss(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
 function fmtSets(sets) {
@@ -444,12 +491,22 @@ function weekStats() {
 const TUTKEY = 'overload.tut';
 function tutGet() { try { const t = JSON.parse(localStorage.getItem(TUTKEY) || '{}'); return t && typeof t === 'object' ? t : {}; } catch (e) { return {}; } }
 function tutSet(patch) { try { localStorage.setItem(TUTKEY, JSON.stringify({ ...tutGet(), ...patch })); } catch (e) { } }
+const TUT_ES = [
+  { i: '👑', h: 'Bienvenido a Papá Strong', p: 'De <b>Soy Papá</b>, para el papá que siempre está presente. Ponte más fuerte superando tu último entrenamiento poquito a poquito. Todo se queda en tu teléfono. No necesitas cuenta.' },
+  { i: '🏋️', h: 'Empieza a entrenar', p: 'Toca <b>Empezar entrenamiento vacío</b> o elige una rutina (una lista guardada de ejercicios, como "Día de empuje"). Luego toca <b>+ Agregar ejercicio</b> y escoge o escribe uno.' },
+  { i: '✅', h: 'Anota una serie', p: 'Escribe el <b>peso</b> y las <b>reps</b>, y toca la <b>✓</b> cuando termines la serie. La próxima vez, tus números de la última vez se llenan solos.<br><span class="tut-s"><b>RPE</b> (opcional) = qué tan pesado se sintió, del 1 al 10. 10 es que ya no salía ni una rep más.</span>' },
+  { i: '⏱️', h: 'Descanso y cronómetro', p: 'Al marcar ✓ arranca el descanso. El botón <b>Reloj</b> te da cuenta regresiva o cronómetro. ¿Planchas o correr? En el menú <b>⋯</b> del ejercicio, cámbialo a modo <b>tiempo</b> para anotar minutos (y distancia).' },
+  { i: '🏆', h: 'PRs, consejos y medallas', p: 'Un <b>PR</b> es tu récord personal: lo más pesado, más reps o lo mejor que has hecho. La app te dice cuándo <b>subir peso</b> y te muestra tu <b>máximo estimado</b> (lo que podrías levantar una vez). Gana <b>medallas de papá</b> por ser constante, por tus PRs, por compartir y por levantar pesado.' },
+  { i: '📈', h: 'Progreso y amigos', p: 'En <b>Progreso</b> ves la gráfica de cada ejercicio. Toca <b>Compartir mis números</b> para mandarle a tus amigos un link o código QR y ver quién va ganando. Sus datos nunca se mezclan con los tuyos.' },
+  { i: '🛟', h: 'A prueba de errores', p: '¿Le diste a Terminar antes de tiempo? Dale a <b>Reanudar</b>. Cualquier entrenamiento se puede <b>editar</b> en Historial. Tus datos viven solo en este teléfono, así que <b>exporta un respaldo</b> en Ajustes de vez en cuando.' },
+  { setup: true, i: '🚀', h: 'Configuración rápida', p: 'Puedes cambiar esto después en Ajustes.' }
+];
 const TUT = [
-  { i: '👋', h: 'Welcome to Overload', p: 'This app helps you get stronger by beating your last workout a little at a time. Everything stays on your phone. No account needed.' },
+  { i: '👑', h: 'Welcome to Papá Strong', p: 'By <b>Soy Papá</b>, for the papá who shows up. Get stronger by beating your last workout a little at a time. Everything stays on your phone. No account needed.' },
   { i: '🏋️', h: 'Start a workout', p: 'Tap <b>Start empty workout</b>, or pick a template (a saved list of exercises, like "Push day"). Then tap <b>+ Add exercise</b> and choose or type one.' },
   { i: '✅', h: 'Log a set', p: 'Type the <b>weight</b> and <b>reps</b>, then tap the <b>✓</b> when the set is done. Next time, your last numbers fill in for you.<br><span class="tut-s"><b>RPE</b> (optional) = how hard it felt, 1 to 10. 10 means you could not do one more rep.</span>' },
   { i: '⏱️', h: 'Rest & timers', p: 'Ticking ✓ starts a rest timer. The <b>Timer</b> button gives you a countdown or stopwatch. Planks or runs? In an exercise’s <b>⋯</b> menu, switch it to <b>time</b> mode to log minutes (and distance).' },
-  { i: '🏆', h: 'PRs & suggestions', p: 'A <b>PR</b> is a personal record: your heaviest, most reps, or best ever. The app also tells you when to <b>add weight</b>, and shows your <b>estimated max</b> (how much you could lift once).' },
+  { i: '🏆', h: 'PRs, tips & badges', p: 'A <b>PR</b> is a personal record: your heaviest, most reps, or best ever. The app tells you when to <b>add weight</b> and shows your <b>estimated max</b> (how much you could lift once). Earn <b>dad badges</b> for showing up, PRs, sharing and big lifts.' },
   { i: '📈', h: 'Progress & friends', p: 'The <b>Progress</b> tab charts every exercise. Tap <b>Share my stats</b> to send friends a link or QR code and compare who’s ahead. Their data never mixes with yours.' },
   { i: '🛟', h: 'Oops-proof', p: 'Tapped Finish too early? Hit <b>Resume</b>. Any workout can be <b>edited</b> in History. Your data lives only on this phone, so <b>Export a backup</b> in Settings now and then.' },
   { setup: true, i: '🚀', h: 'Quick setup', p: 'You can change these later in Settings.' }
@@ -457,10 +514,10 @@ const TUT = [
 let tutI = 0;
 function tutOpen(replay) { tutI = 0; tutSet({ fresh: replay ? tutGet().fresh : 1 }); let el = $('#tut'); if (!el) { el = document.createElement('div'); el.id = 'tut'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Tutorial'); document.body.appendChild(el); tutSwipe(el); } tutDraw(); }
 function tutDraw() {
-  const el = $('#tut'), c = TUT[tutI], last = tutI === TUT.length - 1, u = U();
+  const el = $('#tut'), c = (S.settings.lang === 'es' ? TUT_ES : TUT)[tutI], last = tutI === TUT.length - 1, u = U();
   el.innerHTML = `<div class="tut-top"><span class="mut small">${tutI + 1} / ${TUT.length}</span><button class="tut-skip" data-action="tutSkip">Skip</button></div>
-    <div class="tut-card"><div class="tut-i">${c.i}</div><h2>${c.h}</h2><p>${c.p}</p>
-    ${c.setup ? `<div class="h3 mt">Units</div><div class="seg">${['lb', 'kg'].map(x => `<button data-action="tutUnit" data-u="${x}" class="${u === x ? 'on' : ''}">${x}</button>`).join('')}</div>
+    <div class="tut-card"><div class="tut-i">${c.i}</div><h2${S.settings.lang === 'es' ? ' data-nt' : ''}>${c.h}</h2><p${S.settings.lang === 'es' ? ' data-nt' : ''}>${c.p}</p>
+    ${c.setup ? `<div class="h3 mt">Language / Idioma</div><div class="seg" data-nt>${[['en', 'English'], ['es', 'Español']].map(([x, l]) => `<button data-action="tutLang" data-l="${x}" class="${S.settings.lang === x ? 'on' : ''}">${l}</button>`).join('')}</div><div class="h3 mt">Units</div><div class="seg">${['lb', 'kg'].map(x => `<button data-action="tutUnit" data-u="${x}" class="${u === x ? 'on' : ''}">${x}</button>`).join('')}</div>
       <label class="mt">Your name (shown to friends)<input id="tutName" maxlength="40" value="${esc(S.settings.displayName || '')}" placeholder="optional" autocomplete="off"></label>
       <button class="btn-primary btn-block mt" data-action="tutStart">Start your first workout</button>
       <button class="btn-ghost btn-block mt" data-action="tutDone">I’ll look around first</button>` : ''}</div>
@@ -470,7 +527,7 @@ function tutDraw() {
 function tutSwipe(el) { let x0 = null; el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); el.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50 && !(e.target.closest && e.target.closest('input'))) { tutI = Math.max(0, Math.min(TUT.length - 1, tutI + (dx < 0 ? 1 : -1))); tutDraw(); } }); }
 function tutClose(start) {
   const n = $('#tutName'); if (n && n.value.trim() && n.value.trim() !== (S.settings.displayName || '')) { S.settings.displayName = n.value.trim().slice(0, 40); save(); }
-  tutSet({ seen: 1, noted: 1 }); const el = $('#tut'); if (el) el.remove(); tab = 'train';
+  tutSet({ seen: 1, noted: 1 }); brandSet({ welcomed: 1 }); const el = $('#tut'); if (el) el.remove(); tab = 'train';
   if (start && !S.active) A.startEmpty(); else render();
 }
 function tutHints() {
@@ -485,7 +542,7 @@ function tutHints() {
 }
 function render() {
   $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  $('#title').innerHTML = { train: S.active ? 'Workout' : '<span class="logo">Over</span>load', history: 'History', progress: 'Progress', settings: 'Settings', compare: 'Compare' }[tab];
+  $('#title').innerHTML = { train: S.active ? 'Workout' : '<span class="brand" data-nt><span class="bp">Papá</span><span class="bs">STRONG</span></span>', history: 'History', progress: 'Progress', settings: 'Settings', compare: 'Compare' }[tab];
   ({ train: renderTrain, history: renderHistory, progress: renderProgress, settings: renderSettings, compare: renderCompare })[tab]();
   if (typeof tmTick === 'function') try { tmTick(); } catch (e) { }
   try { tutHints(); } catch (e) { }
@@ -497,7 +554,7 @@ function renderTrain() {
     const wk = weekStats();
     const prs = S.workouts.slice().reverse().flatMap(w => (w.prs || []).map(p => ({ ...p, date: w.start }))).slice(0, 6);
     view.innerHTML = `
-      ${resumeCardHTML()}${!tutGet().noted && S.workouts.length ? '<div class="card tut-note"><div><b>New:</b> a quick tutorial is available, handy for friends.</div><div class="row gap mt"><button class="btn-primary sm" data-action="tutReplay">Show me</button><button class="sm btn-ghost" data-action="tutNoteX">Dismiss</button></div></div>' : ''}<div class="card hero"><div class="h2">Ready to lift?</div>
+      ${resumeCardHTML()}${welcomeHTML()}${badgeRowHTML()}${!tutGet().noted && S.workouts.length && brandGet().welcomed ? '<div class="card tut-note"><div><b>New:</b> a quick tutorial is available, handy for friends.</div><div class="row gap mt"><button class="btn-primary sm" data-action="tutReplay">Show me</button><button class="sm btn-ghost" data-action="tutNoteX">Dismiss</button></div></div>' : ''}<div class="card hero"><div class="h2">Ready to lift?</div>
         <p class="mut">Start a split or an empty session. Last time's numbers fill in automatically, so you just have to beat them.</p>
         <button class="btn-primary btn-block" data-action="startEmpty">Start empty workout</button>
         <button class="btn-ghost btn-block mt" data-action="openTimer">Timer / stopwatch</button></div>
@@ -507,7 +564,7 @@ function renderTrain() {
           <div class="mut small">${t.exIds.map(i => esc(exName(i))).join(' &middot; ') || 'No exercises yet'}</div>
           <div class="mut small mt">${lastTplText(t)}</div></div>
           <div class="col"><button class="btn-primary" data-action="startTpl" data-id="${t.id}">Start</button><button class="btn-ghost sm" data-action="editTpl" data-id="${t.id}">Edit</button></div></div>`).join('') || '<p class="mut center">No templates yet.</p>'}
-      ${prs.length ? `<div class="sec-h"><h2>Recent PRs</h2></div><div class="card">${prs.map(p => `<div class="prline"><div><div style="font-weight:700">${esc(exName(p.exId))}</div><div class="mut small">${fdate(p.date)}</div></div><div class="right">${p.types.map(t => `<span class="b">${t}</span>`).join(' ')}<div class="small mt">${prVal(p)}</div></div></div>`).join('')}</div>` : ''}`;
+      ${prs.length ? `<div class="sec-h"><h2>Recent PRs</h2></div><div class="card">${prs.map(p => `<div class="prline"><div><div style="font-weight:700">${esc(exName(p.exId))}</div><div class="mut small">${fdate(p.date)}</div></div><div class="right">${p.types.map(t => `<span class="b">${t}</span>`).join(' ')}<div class="small mt">${prVal(p)}</div></div></div>`).join('')}</div>` : ''}${shopHTML('home_card')}${footHTML()}`;
     return;
   }
   view.innerHTML = `
@@ -537,7 +594,7 @@ function cardHTML(en, i) {
   return `<section class="card ex${anyPR ? ' has-pr' : ''}" data-i="${i}">
     <div class="ex-h"><button class="ex-title" data-action="openEx" data-id="${ex.id}">${esc(ex.name)} <span class="chev">&rsaquo;</span></button>
       <button class="icon-btn" data-action="exMenu" data-i="${i}" aria-label="Exercise options">&middot;&middot;&middot;</button></div>
-    ${S.active && S.active.day && en.wid ? `<div class="from-tag">from ${esc((S.workouts.find(w => w.id === en.wid) || { name: '?' }).name)} &middot; ${new Date((S.workouts.find(w => w.id === en.wid) || { start: 0 }).start).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>` : ''}<div class="mut small ex-sub">${timed ? `Timed &middot; time (mm:ss)${' + optional ' + DU()}` : `Goal ${mn}-${mx} reps &middot; jump +${inc} ${U()}`}</div>
+    ${S.active && S.active.day && en.wid ? `<div class="from-tag">from ${esc((S.workouts.find(w => w.id === en.wid) || { name: '?' }).name)} &middot; ${new Date((S.workouts.find(w => w.id === en.wid) || { start: 0 }).start).toLocaleTimeString(LOC(), { hour: 'numeric', minute: '2-digit' })}</div>` : ''}<div class="mut small ex-sub">${timed ? `Timed &middot; time (mm:ss)${' + optional ' + DU()}` : `Goal ${mn}-${mx} reps &middot; jump +${inc} ${U()}`}</div>
     <div class="cmp">
       <div><div class="lbl">Last${last ? ' &middot; ' + fdate(last.date) : ''}</div>${last ? `<div>${fmtSets(last.sets)}</div><div class="mut small">${lt ? `longest ${fmtT(lt.t)}${lt.pace ? ' &middot; ' + fmtT(lt.pace) + '/' + DU() : ''}` : `e1RM ${fe1(ls.e1)} &middot; vol ${fvol(ls.vol)}`}</div>` : '<div class="mut">No history yet</div>'}</div>
       <div data-role="today">${todayHTML(en, ls)}</div>
@@ -610,7 +667,7 @@ function spark(vals) {
 }
 function renderProgress() {
   const list = sortedExercises();
-  view.innerHTML = friendsCardHTML() + `<div class="row gap mb"><input id="exq" placeholder="Search exercises" autocomplete="off"><button class="btn-primary" data-action="newExercise" style="min-height:46px;white-space:nowrap">+ New</button></div>
+  view.innerHTML = badgeRowHTML(true) + friendsCardHTML() + `<div class="row gap mb"><input id="exq" placeholder="Search exercises" autocomplete="off"><button class="btn-primary" data-action="newExercise" style="min-height:46px;white-space:nowrap">+ New</button></div>
     <div id="exlist">${list.map(ex => {
       const h = sessionsFor(ex.id), st = h.map(s => sessStats(s.sets)), best = st.reduce((m, s) => Math.max(m, s.e1), 0);
       return `<button class="card exrow" data-action="openEx" data-id="${ex.id}" data-name="${esc(ex.name.toLowerCase())}"><div class="grow" style="min-width:0"><div class="h3">${esc(ex.name)}</div><div class="mut small">${h.length ? `${h.length} session${h.length > 1 ? 's' : ''} &middot; last ${fdate(h[h.length - 1].date)} &middot; ${(() => { const ts = timedStats(h.flatMap(x => x.sets)); return ts ? 'longest ' + fmtT(ts.t) + (ts.d > 0 ? ' / ' + fd(ts.d) + ' ' + DU() : '') : `best e1RM ${fe1(best)} ${U()}`; })()}` : 'Not logged yet'}</div></div>${spark(st.map(s => s.e1))}</button>`;
@@ -662,6 +719,7 @@ function openExDetail(id) {
 function renderSettings() {
   const st = S.settings, u = U(), inc = st.inc[u];
   view.innerHTML = `
+    <div class="card"><div class="h3 mb">Language / Idioma</div><div class="seg" data-nt>${[['en', 'English'], ['es', 'Español']].map(([x, l]) => `<button data-action="setLang" data-l="${x}" class="${(st.lang || 'en') === x ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     <div class="card"><div class="h3 mb">Units</div><div class="seg">${['lb', 'kg'].map(x => `<button data-action="setUnit" data-u="${x}" class="${u === x ? 'on' : ''}">${x}</button>`).join('')}</div>
       <div class="grid2 mt"><label>Upper-body jump (${u})<input data-set="incUpper" inputmode="decimal" value="${inc.upper}"></label><label>Lower-body jump (${u})<input data-set="incLower" inputmode="decimal" value="${inc.lower}"></label></div>
       <p class="mut small">How much weight to add once you hit the top of your rep range. You can override it per exercise in Progress.</p></div>
@@ -673,8 +731,9 @@ function renderSettings() {
       <div class="row gap"><button class="btn-primary grow" data-action="export">Export JSON</button><button class="grow" data-action="import">Import JSON</button></div>
       <p class="mut small">Last backup: ${st.lastBackup ? fdate(st.lastBackup, true) : 'never'}</p></div>
     <div class="card"><div class="h3">Install on your phone</div><p class="mut small">iPhone: open in Safari, tap Share, then <b>Add to Home Screen</b>. Android: Chrome menu, then <b>Install app</b>. After the first load it works offline.</p>${deferredInstall ? '<button data-action="install" class="btn-primary btn-block">Install app</button>' : ''}</div>
+    <div class="card"><div class="eyebrow">Soy Papá</div><p class="mut small">Papá Strong is made by Soy Papá, premium Latino dad culture.</p><label class="tog"><input type="checkbox" data-action="shopPref"${brandGet().shopOff ? '' : ' checked'}>Show the Soy Papá shop card</label><button class="btn-block mt" data-action="openBadges">Dad badges</button></div>
     <div class="card"><div class="h3">Tutorial</div><p class="mut small">A quick walkthrough of how the app works.</p><button class="btn-block" data-action="tutReplay">Replay tutorial</button></div>
-    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center">Overload v6 &middot; ${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
+    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center" data-nt>Papá Strong v7 &middot; by Soy Papá</p><p class="mut small center">${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
 }
 
 /* ---------- pickers & templates ---------- */
@@ -770,7 +829,7 @@ $('#importFile').addEventListener('change', async e => {
     if (!confirm(`Replace everything on this phone with this backup?\n\n${d.workouts.length} workouts, ${d.exercises.length} exercises${d.exportedAt ? '\nExported ' + new Date(d.exportedAt).toLocaleString() : ''}`)) return;
     delete d.app; delete d.exportedAt;
     S = migrate(d); save(); syncWake(); render(); toast(`Imported ${S.workouts.length} workouts`);
-  } catch (err) { toast("That file isn't an Overload backup"); }
+  } catch (err) { toast("That file isn't a Papá Strong backup"); }
 });
 
 
@@ -1025,11 +1084,11 @@ const A2 = {
     if (!n) { toast('Enter a display name'); $('#shareName').focus(); return; }
     S.settings.displayName = n; save(); buildShare();
   },
-  shareNative: async () => { const url = $('#shareUrl').value; try { await navigator.share({ title: 'My lifts on Overload', text: `Compare lifts with ${S.settings.displayName}`, url }); } catch (e) { } },
+  shareNative: async () => { const url = $('#shareUrl').value; try { await navigator.share({ title: tr('My lifts on Papá Strong'), text: tr(`Compare lifts with ${S.settings.displayName}`), url }); markShared(); } catch (e) { } },
   copyLink: async () => {
     const inp = $('#shareUrl');
     try { await Promise.race([navigator.clipboard.writeText(inp.value), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1200))]); } catch (e) { inp.focus(); inp.select(); try { document.execCommand('copy'); } catch (_) { } }
-    toast('Link copied');
+    toast('Link copied'); markShared();
   },
   openFriend: b => { const f = loadFriends()[+b.dataset.k]; if (!f) return; cmp = { f, saved: true }; tab = 'compare'; render(); scrollTo(0, 0); },
   delFriend: b => { const fr = loadFriends(), f = fr[+b.dataset.k]; if (!f || !confirm(`Remove ${f.name} from Friends?`)) return; fr.splice(+b.dataset.k, 1); saveFriends(fr); render(); },
@@ -1037,7 +1096,7 @@ const A2 = {
     if (!cmp || !cmp.f) return;
     const fr = loadFriends(), k = fr.findIndex(x => sameFriend(x, cmp.f));
     if (k >= 0) fr[k] = cmp.f; else fr.push(cmp.f);
-    saveFriends(fr); cmp.saved = true; render(); toast(`${cmp.f.name} saved to Friends`);
+    saveFriends(fr); cmp.saved = true; render(); toast(`${cmp.f.name} saved to Friends`); badgeCheck();
   },
   delFriendCur: () => {
     if (!cmp || !cmp.f || !confirm(`Remove ${cmp.f.name} from Friends?`)) return;
@@ -1160,8 +1219,163 @@ function resumeCardHTML() {
   const lw = S.workouts.slice().sort((x, y) => (y.end || y.start) - (x.end || x.start))[0]; if (!lw) return '';
   const t = lw.end || lw.start;
   if (Date.now() - t > 12 * 3600e3 || new Date(t).toDateString() !== new Date().toDateString()) return '';
-  return `<div class="card resume-card"><div class="grow" style="min-width:0"><div class="h3">Finished by mistake?</div><div class="mut small">${esc(lw.name)} &middot; finished ${new Date(t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div></div><button class="btn-primary" data-action="resumeW" data-id="${lw.id}">Resume</button></div>`;
+  return `<div class="card resume-card"><div class="grow" style="min-width:0"><div class="h3">Finished by mistake?</div><div class="mut small">${esc(lw.name)} &middot; finished ${new Date(t).toLocaleTimeString(LOC(), { hour: 'numeric', minute: '2-digit' })}</div></div><button class="btn-primary" data-action="resumeW" data-id="${lw.id}">Resume</button></div>`;
 }
+
+/* ---------- Papá Strong: i18n ---------- */
+const ES_EXACT = new Map(), ES_PAT = [], TR_MEMO = new Map(), TR_MISS = new Set(), TR_DONE = new Set();
+(function buildDict() {
+  const D = window.ES_DICT || {};
+  for (const k of Object.keys(D)) {
+    if (/\{\d\}/.test(k)) {
+      const re = new RegExp('^' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\{\d\\\}/g, '(.+?)') + '$', 's');
+      ES_PAT.push([re, D[k], (k.match(/\{\d\}/g) || []).map(x => +x[1]), k.replace(/\{\d\}/g, '').length]);
+    } else ES_EXACT.set(k.replace(/\s+/g, ' ').trim(), D[k]);
+  }
+  ES_PAT.sort((a, b) => b[3] - a[3]);
+})();
+const isES = () => !!(S && S.settings && S.settings.lang === 'es');
+function trCore(k) {
+  if (ES_EXACT.has(k)) return ES_EXACT.get(k);
+  if (TR_MEMO.has(k)) return TR_MEMO.get(k);
+  let out = null;
+  for (const [re, val, order] of ES_PAT) {
+    const m = k.match(re); if (!m) continue;
+    out = val.replace(/\{(\d)\}/g, (_, i) => { const g = m[order.indexOf(+i) + 1]; if (g == null) return ''; const gt = g.trim(), lead = g.match(/^\s*/)[0], trail = g.match(/\s*$/)[0]; return lead + (ES_EXACT.has(gt) ? ES_EXACT.get(gt) : (trCore(gt) ?? gt)) + trail; });
+    break;
+  }
+  TR_MEMO.set(k, out);
+  return out;
+}
+function tr(str) {
+  if (!isES() || str == null) return str;
+  str = String(str); const k = str.replace(/\s+/g, ' ').trim(); if (!k || !/[A-Za-z]/.test(k)) return str;
+  if (TR_DONE.has(k)) return str;
+  const v = trCore(k);
+  if (v == null) { TR_MISS.add(k); return str; }
+  TR_DONE.add(v.replace(/\s+/g, ' ').trim());
+  return str.match(/^\s*/)[0] + v + str.match(/\s*$/)[0];
+}
+const TR_ATTRS = ['placeholder', 'aria-label', 'title'];
+function trNode(n) {
+  if (n.nodeType === 3) {
+    const p = n.parentElement; if (!p || p.closest('[data-nt],script,style,textarea')) return;
+    const v = n.nodeValue; if (!/[A-Za-z]/.test(v)) return; const t = tr(v); if (t !== v) n.nodeValue = t;
+  } else if (n.nodeType === 1) {
+    if (n.closest('[data-nt],script,style')) return;
+    const els = [n, ...n.querySelectorAll('[placeholder],[aria-label],[title]')];
+    for (const el of els) for (const a of TR_ATTRS) { const v = el.getAttribute(a); if (v && !el.closest('[data-nt]')) { const t = tr(v); if (t !== v) el.setAttribute(a, t); } }
+    const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT); const list = []; while (w.nextNode()) list.push(w.currentNode); list.forEach(trNode);
+  }
+}
+if (isES()) {
+  document.documentElement.lang = 'es';
+  trNode(document.body);
+  new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') trNode(m.target); else if (m.type === 'attributes') trNode(m.target); else m.addedNodes.forEach(trNode); } })
+    .observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
+  const _c = window.confirm.bind(window), _a = window.alert.bind(window), _p = window.prompt.bind(window);
+  window.confirm = m => _c(tr(m)); window.alert = m => _a(tr(m)); window.prompt = (m, d) => _p(tr(m), d);
+}
+window.__trMiss = () => [...TR_MISS]; window.__tr = s => tr(s);
+
+/* ---------- Papá Strong: brand state, badges, shop ---------- */
+const BKEY = 'overload.brand';
+function brandGet() { try { const b = JSON.parse(localStorage.getItem(BKEY) || '{}'); return b && typeof b === 'object' ? b : {}; } catch (e) { return {}; } }
+function brandSet(p) { try { localStorage.setItem(BKEY, JSON.stringify({ ...brandGet(), ...p })); } catch (e) { } }
+const SHOP = 'https://soypapawear.com/', TANK = 'https://soypapawear.com/products/french-terry-boxy-tank-top-pap-guila';
+const utm = (url, c) => `${url}?utm_source=papastrong&utm_medium=app&utm_campaign=${c}`;
+function shopHTML(c, compact) {
+  const b = brandGet(); if (b.shopOff) return '';
+  if (b.shopMin && !compact) return `<button class="shop-mini" data-action="shopToggle"><span><span class="eyebrow">Soy Papá shop</span><br><span class="small mut">Papá Águila Tank and more</span></span><span class="mut">&rsaquo;</span></button>`;
+  return `<div class="card shop gframe"><div class="shop-top"><span class="eyebrow">Soy Papá &middot; Shop</span>${compact ? '' : '<button class="icon-btn sm" data-action="shopToggle" aria-label="Collapse shop card">&ndash;</button>'}</div>
+    <div class="shop-name" data-nt>Papá Águila Tank</div>
+    <p class="mut small">Soy Papá in gothic lettering. Boxy French terry, built for heat, work and weekends with the kids.</p>
+    <div class="row gap"><a class="btn-a gold grow" href="${utm(TANK, c)}" target="_blank" rel="noopener">Shop the tank</a><a class="btn-a ghost" href="${utm(SHOP, c)}" target="_blank" rel="noopener">Soy Papá</a></div></div>`;
+}
+function footHTML() { return `<div class="foot"><div class="eyebrow">Papá Strong &middot; by Soy Papá</div><div class="creed" data-nt>${isES() ? 'Soy papá no es solo dar la vida. Es estar presente en cada momento.' : 'Being a father isn\'t something you do. It\'s something you are.'}</div><div>For the papá who shows up.</div></div>`; }
+function welcomeHTML() {
+  if (brandGet().welcomed || !S.workouts.length) return '';
+  return `<div class="card gframe" style="background:linear-gradient(160deg,#1f190b,#121212)"><div class="eyebrow">New look</div><div class="h2" style="margin:4px 0" data-nt><span class="brand"><span class="bp">${isES() ? 'Bienvenido a' : 'Welcome to'}</span></span> <span class="brand"><span class="bp">Papá</span><span class="bs">STRONG</span></span></div>
+    <p class="mut small">Overload is now Papá Strong, by Soy Papá. Same app, all your workouts right where you left them. New: dad badges and Spanish (Settings).</p>
+    <div class="row gap" style="flex-wrap:wrap"><button class="btn-primary sm" data-action="openBadges">See my badges</button><button class="sm btn-ghost" data-action="tutReplay">Tutorial</button><button class="sm btn-ghost" data-action="welcomeX">Got it</button></div></div>`;
+}
+// --- badges (read-only derivation from workouts/friends) ---
+const BIG = { bench: /bench|banca/, squat: /squat|sentadilla/, dead: /deadlift|peso muerto/ };
+const BIG_NOT = /romanian|rumano|rdl|stiff|dumbbell|mancuerna|split|goblet|búlgara|bulgarian/;
+function badgeStats() {
+  const ws = S.workouts, wk = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); };
+  const weeks = new Map(); ws.forEach(w => { const k = wk(w.start); weeks.set(k, (weeks.get(k) || 0) + 1); });
+  let streak = 0, cur = 0, prev = null;
+  for (const k of [...weeks.keys()].sort((a, b) => a - b)) { cur = (prev != null && Math.round((k - prev) / 6048e5) === 1) ? cur + 1 : 1; streak = Math.max(streak, cur); prev = k; }
+  const big = { bench: 0, squat: 0, dead: 0 };
+  for (const ex of S.exercises) {
+    const n = nameKey(ex.name); if (isTimedEx(ex) || BIG_NOT.test(n)) continue;
+    const cat = Object.keys(BIG).find(c => BIG[c].test(n)); if (!cat) continue;
+    for (const s of sessionsFor(ex.id).flatMap(x => x.sets)) if (!(s.t > 0) && s.w > 0 && s.r > 0) big[cat] = Math.max(big[cat], e1(s.w, s.r));
+  }
+  return { n: ws.length, best3: Math.max(0, ...weeks.values()), streak, prs: ws.reduce((a, w) => a + (w.prs || []).length, 0), friends: loadFriends().length, shared: !!brandGet().shared,
+    bigMax: Math.max(big.bench, big.squat, big.dead), total: big.bench + big.squat + big.dead };
+}
+const kgMode = () => U() === 'kg', plate = (lb, kg) => kgMode() ? kg * LB_PER_KG : lb, plateTxt = (lb, kg) => kgMode() ? `${kg} kg` : `${lb} lb`;
+const BADGES = [
+  { id: 'p1', v: 'P', i: '🫡', t: 'Showed up', d: () => 'Logged your first workout', ok: s => s.n >= 1, pr: s => [s.n, 1] },
+  { id: 'p3', v: 'P', i: '📅', t: 'Three in a week', d: () => 'Trained 3 times in one week', ok: s => s.best3 >= 3, pr: s => [s.best3, 3] },
+  { id: 'p4w', v: 'P', i: '🔥', t: '4-week streak', d: () => 'Trained 4 weeks in a row', ok: s => s.streak >= 4, pr: s => [s.streak, 4] },
+  { id: 'p12w', v: 'P', i: '🕯️', t: '12-week streak', d: () => 'Trained 12 weeks in a row', ok: s => s.streak >= 12, pr: s => [s.streak, 12] },
+  { id: 'o1', v: 'O', i: '🏆', t: 'First PR', d: () => 'Set your first personal record', ok: s => s.prs >= 1, pr: s => [s.prs, 1] },
+  { id: 'o10', v: 'O', i: '🥇', t: '10 PRs', d: () => 'Set 10 personal records', ok: s => s.prs >= 10, pr: s => [s.prs, 10] },
+  { id: 'o50', v: 'O', i: '🦅', t: '50 PRs', d: () => 'Set 50 personal records', ok: s => s.prs >= 50, pr: s => [s.prs, 50] },
+  { id: 'f1', v: 'F', i: '📲', t: 'Shared your stats', d: () => 'Sent your stats link to someone', ok: s => s.shared, pr: s => [+s.shared, 1] },
+  { id: 'f2', v: 'F', i: '🤝', t: 'Crew', d: () => 'Saved a friend to compare with', ok: s => s.friends >= 1, pr: s => [s.friends, 1] },
+  { id: 'f3', v: 'F', i: '👨‍👧‍👦', t: 'La familia', d: () => 'Saved 3 friends', ok: s => s.friends >= 3, pr: s => [s.friends, 3] },
+  { id: 'l225', v: 'L', i: '🏋️', t: 'Two plates', d: () => `Estimated max of ${plateTxt(225, 100)} on bench, squat or deadlift`, ok: s => s.bigMax >= plate(225, 100) - 0.01, pr: s => [Math.round(toD(s.bigMax)), Math.round(toD(plate(225, 100)))] },
+  { id: 'l315', v: 'L', i: '💪', t: 'Three plates', d: () => `Estimated max of ${plateTxt(315, 140)} on bench, squat or deadlift`, ok: s => s.bigMax >= plate(315, 140) - 0.01, pr: s => [Math.round(toD(s.bigMax)), Math.round(toD(plate(315, 140)))] },
+  { id: 'l405', v: 'L', i: '🦁', t: 'Four plates', d: () => `Estimated max of ${plateTxt(405, 180)} on bench, squat or deadlift`, ok: s => s.bigMax >= plate(405, 180) - 0.01, pr: s => [Math.round(toD(s.bigMax)), Math.round(toD(plate(405, 180)))] },
+  { id: 'l1k', v: 'L', i: '👑', t: '1000 lb club', d: () => kgMode() ? 'Bench + squat + deadlift estimated maxes total 450 kg' : 'Bench + squat + deadlift estimated maxes total 1000 lb', ok: s => s.total >= plate(1000, 450) - 0.01, pr: s => [Math.round(toD(s.total)), Math.round(toD(plate(1000, 450)))] },
+  { id: 'l100', v: 'L', i: '🏛️', t: '100 workouts', d: () => 'Logged 100 workouts', ok: s => s.n >= 100, pr: s => [s.n, 100] }
+];
+const VALUES = { P: ['Presente', 'Always there.'], O: ['Orgullo', 'Latino pride.'], F: ['Familia', 'Family first.'], L: ['Legado', 'Leave a legacy.'] };
+function earnedNow() { const st = badgeStats(); return BADGES.filter(b => b.ok(st)).map(b => b.id); }
+let EARNED_AT_LOAD = [];
+function earnedAll() { return [...new Set([...(brandGet().earned || []), ...earnedNow()])]; }
+function badgeCheck() {
+  const now = earnedNow(), b = brandGet(), known = b.earned || EARNED_AT_LOAD, fresh = now.filter(id => !known.includes(id));
+  if (fresh.length || !b.earned) brandSet({ earned: [...new Set([...known, ...now])] });
+  if (fresh.length) celebrate(fresh);
+  return fresh;
+}
+function celebrate(ids) {
+  const old = $('#celebrate'); if (old) old.remove();
+  const b = BADGES.find(x => x.id === ids[0]), el = document.createElement('div'); el.id = 'celebrate'; el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = `${Array.from({ length: 28 }, (_, k) => `<i class="cf" style="left:${(k * 37) % 100}%;animation-delay:${(k % 7) * 0.12}s;background:${k % 3 ? '#C9A84C' : '#f3dc8e'}"></i>`).join('')}
+    <div class="cc"><div class="medal">${b.i}</div><div class="eyebrow">${VALUES[b.v][0]} &middot; Badge earned</div><h3>${b.t}</h3><div class="mut small">${b.d()}</div>${ids.length > 1 ? `<div class="small mt">+${ids.length - 1} more</div>` : ''}</div>`;
+  document.body.appendChild(el); buzz([40, 30, 40, 30, 160]); setTimeout(() => el.remove(), 3700);
+  const t = $('#toast'); if (t) t.setAttribute('data-badge', '1');
+}
+function badgeRowHTML(always) {
+  const on = earnedAll(); if (!always && !S.workouts.length && !on.length) return '';
+  const last = BADGES.filter(b => on.includes(b.id)).slice(-4);
+  return `<button class="badge-row" data-action="openBadges"><span class="mini">${last.length ? last.map(b => `<span class="medal sm">${b.i}</span>`).join('') : '<span class="medal sm off">🫡</span>'}</span><span class="grow"><b>Dad badges</b><br><span class="mut small">${on.length} of ${BADGES.length} earned</span></span><span class="mut">&rsaquo;</span></button>`;
+}
+function openBadges() {
+  const on = earnedAll(), st = badgeStats();
+  openSheet(`<div class="sheet-h"><h2>Dad badges</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
+    <div class="card gframe creed-box"><div class="eyebrow">Soy Papá</div><div class="q mt" data-nt>${isES() ? '“Soy papá no es solo dar la vida. Es estar presente en cada momento.”' : '“Being a father isn\'t something you do. It\'s something you are.”'}</div><div class="mut small mt">${on.length} of ${BADGES.length} earned</div></div>
+    ${Object.entries(VALUES).map(([v, [name, motto]]) => `<div class="val-h"><span class="eyebrow" data-nt>${name}</span> <span class="mut">${motto}</span></div><div class="bgrid">${BADGES.filter(b => b.v === v).map(b => {
+      const ok = on.includes(b.id), [c, max] = b.pr(st);
+      return `<div class="btile${ok ? ' on' : ''}" data-badge="${b.id}"><span class="medal${ok ? '' : ' off'}">${b.i}</span><div style="min-width:0"><b>${b.t}</b><div class="mut small">${b.d()}</div>${ok ? '' : `<div class="pbar"><i style="width:${Math.min(100, 100 * c / max).toFixed(0)}%"></i></div>`}</div></div>`;
+    }).join('')}</div>`).join('')}
+    <p class="mut small center mt">Badges come from your logged workouts and never change them.</p>`, 'tall');
+}
+function markShared() { if (!brandGet().shared) { brandSet({ shared: 1 }); badgeCheck(); } }
+const A5 = {
+  openBadges: () => { brandSet({ welcomed: 1 }); openBadges(); },
+  welcomeX: () => { brandSet({ welcomed: 1 }); tutSet({ noted: 1 }); render(); },
+  shopToggle: () => { brandSet({ shopMin: !brandGet().shopMin }); render(); },
+  shopPref: b => { brandSet({ shopOff: !b.checked }); toast(b.checked ? 'Shop card on' : 'Shop card hidden'); },
+  setLang: b => { if (S.settings.lang === b.dataset.l) return; S.settings.lang = b.dataset.l; save(); location.reload(); },
+  tutLang: b => { if (S.settings.lang === b.dataset.l) return; S.settings.lang = b.dataset.l; save(); try { sessionStorage.setItem('papa.tutReopen', String(tutI)); } catch (e) { } location.reload(); }
+};
 
 /* ---------- whole-day edit & merge ---------- */
 const dayWs = key => S.workouts.filter(w => dateVal(w.start) === key).sort((a, b) => a.start - b.start);
@@ -1200,7 +1414,7 @@ const A4 = {
   mergeDay: b => {
     const ws = dayWs(b.dataset.day); if (ws.length < 2) return;
     if (ws.some(w => inActive(w.id))) { toast('Finish or cancel the open workout first'); return; }
-    if (!confirm(`Merge these ${ws.length} workouts into one session?\n\n${ws.map(w => '- ' + w.name + ' (' + new Date(w.start).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + ')').join('\n')}\n\nSets of the same exercise are combined. This can't be split back automatically.`)) return;
+    if (!confirm(`Merge these ${ws.length} workouts into one session?\n\n${ws.map(w => '- ' + w.name + ' (' + new Date(w.start).toLocaleTimeString(LOC(), { hour: 'numeric', minute: '2-digit' }) + ')').join('\n')}\n\nSets of the same exercise are combined. This can't be split back automatically.`)) return;
     const entries = [];
     for (const w of ws) for (const en of w.entries) {
       const k = nameKey(exName(en.exId)), hit = entries.find(e => e.exId === en.exId || nameKey(exName(e.exId)) === k);
@@ -1292,10 +1506,12 @@ const A = {
     lastFinished = w; stopTimer(); syncWake(); render(); scrollTo(0, 0);
     if (mode === 'edit') { toast('Changes saved'); return; }
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
-    const prs = w.prs, v = w.entries.reduce((s, e) => s + vol(e.sets), 0), n = w.entries.reduce((s, e) => s + e.sets.length, 0);
+    const prs = w.prs, v = w.entries.reduce((s, e) => s + vol(e.sets), 0), n = w.entries.reduce((s, e) => s + e.sets.length, 0), nb = badgeCheck();
     openSheet(`<div class="sheet-h"><h2>Workout saved</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
       <div class="prgrid">${tile('Duration', fdur(w.end - w.start))}${tile('Sets', n)}${tile('Volume', fvol(v) + ' ' + U())}${tile('PRs', prs.length)}</div>
       ${prs.length ? `<div class="card inner">${prs.map(p => `<div class="prline"><span style="font-weight:700">${esc(exName(p.exId))}</span><span class="right">${p.types.map(t => `<span class="b">${t}</span>`).join(' ')}<div class="small mt">${prVal(p)}</div></span></div>`).join('')}</div>` : '<p class="mut">No PRs this time. Consistency is what sets up the next ones.</p>'}
+      ${nb.length ? `<div class="card inner newb"><div class="eyebrow">New badges</div>${nb.map(id => { const b = BADGES.find(x => x.id === id); return `<div class="row gap mt"><span class="medal sm">${b.i}</span><div><b>${b.t}</b><div class="mut small">${b.d()}</div></div></div>`; }).join('')}<button class="btn-ghost sm mt" data-action="openBadges">See all badges</button></div>` : ''}
+      ${S.workouts.length % 5 === 0 && !brandGet().shopOff ? shopHTML('finish_card', true) : ''}
       ${w.templateId ? '' : '<button class="btn-ghost btn-block mt" data-action="saveAsTpl">Save as template</button>'}
       <button class="btn-ghost btn-block mt" data-action="resumeW" data-id="${w.id}">Finished by mistake? Resume</button>
       <button class="btn-primary btn-block mt" data-action="closeSheet">Done</button>`);
@@ -1340,10 +1556,10 @@ const A = {
   setUnit: b => { S.settings.unit = b.dataset.u; save(); render(); },
   export: () => {
     const data = JSON.stringify({ app: 'overload-tracker', exportedAt: new Date().toISOString(), ...S }, null, 2);
-    const name = `overload-backup-${isoDate()}.json`, blob = new Blob([data], { type: 'application/json' });
+    const name = `papa-strong-backup-${isoDate()}.json`, blob = new Blob([data], { type: 'application/json' });
     let file = null; try { file = new File([blob], name, { type: 'application/json' }); } catch (e) { }
     if (file && navigator.canShare && navigator.canShare({ files: [file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
-      navigator.share({ files: [file], title: 'Overload backup' }).then(markBackup).catch(err => { if (err && err.name !== 'AbortError') download(blob, name); });
+      navigator.share({ files: [file], title: 'Papá Strong backup' }).then(markBackup).catch(err => { if (err && err.name !== 'AbortError') download(blob, name); });
     } else download(blob, name);
   },
   import: () => $('#importFile').click(),
@@ -1351,15 +1567,18 @@ const A = {
   reset: () => { if (!confirm('Erase ALL workouts, exercises and templates on this phone? Export a backup first if you might want them.')) return; S = freshState(); localStorage.removeItem(FKEY); save(); stopTimer(); syncWake(); render(); toast('All data erased'); }
 };
 
-Object.assign(A, A2, A3, A4, {
+Object.assign(A, A2, A3, A4, A5, {
   tutNext: () => { tutI = Math.min(TUT.length - 1, tutI + 1); tutDraw(); }, tutBack: () => { tutI = Math.max(0, tutI - 1); tutDraw(); },
   tutSkip: () => tutClose(false), tutDone: () => tutClose(false), tutStart: () => tutClose(true),
   tutUnit: b => { S.settings.unit = b.dataset.u; save(); tutDraw(); },
-  tutReplay: () => { tutSet({ noted: 1 }); if (sheetOpen) closeSheet(); tutOpen(true); render(); },
+  tutReplay: () => { tutSet({ noted: 1 }); brandSet({ welcomed: 1 }); if (sheetOpen) closeSheet(); tutOpen(true); render(); },
   tutNoteX: () => { tutSet({ noted: 1 }); render(); },
   hintOk: b => { const t = tutGet(); tutSet({ hints: { ...(t.hints || {}), [b.dataset.k]: 1 } }); const h = $('#hint'); if (h) h.remove(); }
 });
-{ const t = tutGet(); if (!t.seen && !S.workouts.length && !S.active) setTimeout(() => tutOpen(false), 0); }
+{ const t = tutGet(); let re = null; try { re = sessionStorage.getItem('papa.tutReopen'); sessionStorage.removeItem('papa.tutReopen'); } catch (e) { }
+  if (re != null) setTimeout(() => { tutOpen(true); tutI = Math.min(TUT.length - 1, +re || 0); tutDraw(); }, 0);
+  else if (!t.seen && !S.workouts.length && !S.active) setTimeout(() => tutOpen(false), 0); }
+if (FRESH) brandSet({ welcomed: 1 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-action]'); if (!b || b.disabled) return;
   const fn = A[b.dataset.action]; if (!fn) return;
@@ -1418,6 +1637,7 @@ addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInsta
 addEventListener('storage', e => { if (e.key === KEY) { S = load(); render(); } });
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+try { EARNED_AT_LOAD = earnedNow(); } catch (e) { }
 render(); tick(); syncWake(); handleHash();
 </script>
 </body>
