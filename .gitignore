@@ -1,6 +1,8 @@
 screenshots/
 node_modules/
 dist/
+!plugins/**/dist/
+!plugins/**/dist/**
 .DS_Store
 *.log
 ios/App/Pods/
