@@ -1,0 +1,17 @@
+{
+  "name": "dadstrong-bridge",
+  "version": "1.0.0",
+  "description": "DadStrong native bridge: HealthKit workouts + widget shared defaults",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": ["android/", "ios/", "dist/", "DadStrongBridge.podspec", "Package.swift"],
+  "author": "Spiermen",
+  "license": "MIT",
+  "capacitor": {
+    "ios": { "src": "ios" },
+    "android": { "src": "android" }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=7.0.0"
+  }
+}

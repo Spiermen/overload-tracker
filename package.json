@@ -1,0 +1,29 @@
+{
+  "name": "dadstrong",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DadStrong — workout tracker for busy fathers (Capacitor iOS + PWA)",
+  "scripts": {
+    "sync:www": "bash scripts/sync-www.sh",
+    "build:web": "bash scripts/sync-www.sh",
+    "cap:sync": "npm run sync:www && npx cap sync ios",
+    "cap:open": "npx cap open ios",
+    "lint:workflow": "python3 scripts/validate-workflow.py",
+    "verify": "npm run sync:www && npm run lint:workflow && test -f ios/App/App.xcodeproj/project.pbxproj && test -f www/index.html && ! grep -q soypapawear www/index.html"
+  },
+  "dependencies": {
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/core": "^7.2.0",
+    "@capacitor/haptics": "^7.0.1",
+    "@capacitor/ios": "^7.2.0",
+    "@capacitor/local-notifications": "^7.0.1",
+    "@capacitor/preferences": "^7.0.1",
+    "@capacitor/status-bar": "^7.0.1",
+    "@revenuecat/purchases-capacitor": "^10.3.0",
+    "dadstrong-bridge": "file:plugins/dadstrong-bridge"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.2.0",
+    "typescript": "^7.0.2"
+  }
+}

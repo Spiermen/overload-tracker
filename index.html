@@ -268,6 +268,7 @@ a.btn-a.gold{background:linear-gradient(180deg,#ff3d4d,#E52535);color:#ffffff}a.
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <script src="es.js"></script>
+<script src="native-bridge.js"></script>
 <script>
 'use strict';
 /* ---------- basics ---------- */
@@ -732,8 +733,17 @@ function renderSettings() {
       <p class="mut small">Last backup: ${st.lastBackup ? fdate(st.lastBackup, true) : 'never'}</p></div>
     <div class="card"><div class="h3">Install on your phone</div><p class="mut small">iPhone: open in Safari, tap Share, then <b>Add to Home Screen</b>. Android: Chrome menu, then <b>Install app</b>. After the first load it works offline.</p>${deferredInstall ? '<button data-action="install" class="btn-primary btn-block">Install app</button>' : ''}</div>
     <div class="card"><div class="eyebrow">DadStrong</div><p class="mut small">Workout tracker for busy fathers. Beat your last session, earn dad badges, track PRs.</p><button class="btn-block mt" data-action="openBadges">Dad badges</button></div>
+    <div class="card" id="iosCard" ${typeof DadStrongNative !== 'undefined' && DadStrongNative.isNative() ? '' : 'hidden'}><div class="eyebrow">iPhone</div>
+      <p class="mut small">Apple Health, reminders and your home-screen widget. These only work in the App Store app.</p>
+      <label class="tog"><input type="checkbox" data-action="nativeHealth"${(typeof DadStrongNative !== 'undefined' && DadStrongNative.prefs.healthOn) ? ' checked' : ''}>Save finished workouts to Apple Health</label>
+      <label class="tog"><input type="checkbox" data-action="nativeRemind"${(typeof DadStrongNative !== 'undefined' && DadStrongNative.prefs.remindOn) ? ' checked' : ''}>Workout reminders</label>
+      <div class="grid2 mt"><label>Hour (0-23)<input id="remindHour" inputmode="numeric" value="${(typeof DadStrongNative !== 'undefined' && DadStrongNative.prefs.remindHour != null) ? DadStrongNative.prefs.remindHour : 18}"></label><label>Days (0=Sun)<input id="remindDays" value="${(typeof DadStrongNative !== 'undefined' && DadStrongNative.prefs.remindDays) ? DadStrongNative.prefs.remindDays.join(',') : '1,3,5'}"></label></div>
+      <p class="mut small">Add the DadStrong widget from your Home Screen for streak + last workout.</p></div>
+    <div class="card"><div class="eyebrow">DadStrong Pro</div>
+      <p class="mut small">${typeof DadStrongNative !== 'undefined' && DadStrongNative.isPro() ? 'Pro is unlocked. Thanks for supporting DadStrong.' : 'Free includes the full logger. Pro unlocks unlimited friend compares (free: 2) and custom reminder schedules.'}</p>
+      ${typeof DadStrongNative !== 'undefined' && DadStrongNative.isPro() ? '<button class="btn-block" data-action="nativeRestore">Restore purchases</button>' : '<button class="btn-primary btn-block" data-action="nativeBuyPro">Unlock Pro</button><button class="btn-ghost btn-block mt" data-action="nativeRestore">Restore purchases</button>'}</div>
     <div class="card"><div class="h3">Tutorial</div><p class="mut small">A quick walkthrough of how the app works.</p><button class="btn-block" data-action="tutReplay">Replay tutorial</button></div>
-    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center" data-nt>DadStrong v8</p><p class="mut small center">${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
+    <div class="card"><button class="btn-danger btn-block" data-action="reset">Erase all data</button><p class="mut small center" data-nt>DadStrong v9</p><p class="mut small center">${S.workouts.length} workouts &middot; ${S.exercises.length} exercises</p></div>`;
 }
 
 /* ---------- pickers & templates ---------- */
@@ -1095,6 +1105,10 @@ const A2 = {
   saveFriend: () => {
     if (!cmp || !cmp.f) return;
     const fr = loadFriends(), k = fr.findIndex(x => sameFriend(x, cmp.f));
+    if (k < 0 && window.DadStrongNative && !DadStrongNative.canAddFriend(fr.length)) {
+      toast(`Free plan saves ${DadStrongNative.freeFriendLimit} friends. Unlock Pro for unlimited.`);
+      return;
+    }
     if (k >= 0) fr[k] = cmp.f; else fr.push(cmp.f);
     saveFriends(fr); cmp.saved = true; render(); toast(`${cmp.f.name} saved to Friends`); badgeCheck();
   },
@@ -1362,6 +1376,16 @@ function markShared() { if (!brandGet().shared) { brandSet({ shared: 1 }); badge
 const A5 = {
   openBadges: () => { brandSet({ welcomed: 1 }); openBadges(); },
   welcomeX: () => { brandSet({ welcomed: 1 }); tutSet({ noted: 1 }); render(); },
+  nativeHealth: async b => { if (!window.DadStrongNative) return; if (b.checked) { const ok = await DadStrongNative.requestHealth(); if (!ok) { b.checked = false; toast('Health access not granted'); return; } toast('Apple Health on'); } else { DadStrongNative.setPref({ healthOn: false }); toast('Apple Health off'); } },
+  nativeRemind: async b => { if (!window.DadStrongNative) return; if (!b.checked) { await DadStrongNative.clearReminders(); toast('Reminders off'); return; }
+    if (!DadStrongNative.isPro()) { /* one default schedule is free */ }
+    const hour = +((document.querySelector('#remindHour') || {}).value || 18);
+    const days = String((document.querySelector('#remindDays') || {}).value || '1,3,5').split(/\s*,\s*/).map(Number).filter(n => n >= 0 && n <= 6);
+    const ok = await DadStrongNative.scheduleReminders(hour, days.length ? days : [1, 3, 5]);
+    if (!ok) { b.checked = false; toast('Notification permission needed'); return; }
+    toast('Reminders on'); },
+  nativeBuyPro: async () => { if (!window.DadStrongNative) return; const r = await DadStrongNative.purchasePro(); toast(r.ok ? (r.simulated ? 'Pro unlocked (test)' : 'Pro unlocked!') : (r.reason === 'cancelled' ? 'Purchase cancelled' : 'Could not purchase')); render(); },
+  nativeRestore: async () => { if (!window.DadStrongNative) return; const ok = await DadStrongNative.restorePro(); toast(ok ? 'Pro restored' : 'No purchases to restore'); render(); },
   setLang: b => { if (S.settings.lang === b.dataset.l) return; S.settings.lang = b.dataset.l; save(); location.reload(); },
   tutLang: b => { if (S.settings.lang === b.dataset.l) return; S.settings.lang = b.dataset.l; save(); try { sessionStorage.setItem('dadstrong.tutReopen', String(tutI)); } catch (e) { } location.reload(); }
 };
@@ -1496,6 +1520,7 @@ const A = {
     if (mode === 'edit') { toast('Changes saved'); return; }
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
     const prs = w.prs, v = w.entries.reduce((s, e) => s + vol(e.sets), 0), n = w.entries.reduce((s, e) => s + e.sets.length, 0), nb = badgeCheck();
+    try { if (window.DadStrongNative) { DadStrongNative.saveWorkoutToHealth(w); const st = badgeStats(); const last = S.workouts[S.workouts.length-1]; DadStrongNative.pushWidget({ streak: st.streak, lastName: (last && last.name) || w.name, lastDate: (last && last.start) || w.start, setsThisWeek: S.workouts.filter(x => x.start >= Date.now() - 7*864e5).reduce((a,x)=>a+x.entries.reduce((b,e)=>b+e.sets.length,0),0) }); } } catch (e) { }
     openSheet(`<div class="sheet-h"><h2>Workout saved</h2><button class="icon-btn" data-action="closeSheet" aria-label="Close">&times;</button></div>
       <div class="prgrid">${tile('Duration', fdur(w.end - w.start))}${tile('Sets', n)}${tile('Volume', fvol(v) + ' ' + U())}${tile('PRs', prs.length)}</div>
       ${prs.length ? `<div class="card inner">${prs.map(p => `<div class="prline"><span style="font-weight:700">${esc(exName(p.exId))}</span><span class="right">${p.types.map(t => `<span class="b">${t}</span>`).join(' ')}<div class="small mt">${prVal(p)}</div></span></div>`).join('')}</div>` : '<p class="mut">No PRs this time. Consistency is what sets up the next ones.</p>'}

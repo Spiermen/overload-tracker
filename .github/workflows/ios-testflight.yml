@@ -1,0 +1,95 @@
+name: iOS TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      changelog:
+        description: TestFlight changelog
+        required: false
+        default: DadStrong build
+  push:
+    branches: [ios, main]
+    paths:
+      - "ios/**"
+      - "www/**"
+      - "index.html"
+      - "native-bridge.js"
+      - "plugins/**"
+      - "package.json"
+      - "capacitor.config.json"
+      - "fastlane/**"
+      - ".github/workflows/ios-testflight.yml"
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & upload TestFlight
+    runs-on: macos-14
+    timeout-minutes: 60
+    # Skip automatic uploads until secrets exist — workflow_dispatch always runs.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && vars.IOS_AUTO_UPLOAD == '1')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install JS deps & sync Capacitor
+        run: |
+          npm ci
+          npm run sync:www
+          npx cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          cd ios/App
+          pod install --repo-update
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Setup Ruby / Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Bundle install (fastlane)
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Build & upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_TEAM_ID: ${{ secrets.ASC_TEAM_ID }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          TF_CHANGELOG: ${{ github.event.inputs.changelog || 'DadStrong build' }}
+        run: bundle exec fastlane ios beta
+
+  lint:
+    name: Lint workflow + web sync (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run verify

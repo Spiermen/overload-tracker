@@ -1,5 +1,5 @@
 // DadStrong service worker: offline app shell
-const CACHE = 'overload-v8';
+const CACHE = 'overload-v9';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './es.js', './fonts/BarlowCondensed-700.woff2', './fonts/BarlowCondensed-800.woff2', './fonts/CormorantGaramond-700i.woff2'];
 
 self.addEventListener('install', e => {
