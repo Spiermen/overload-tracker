@@ -1,7 +1,7 @@
 {
-  "name": "Papá Strong by Soy Papá",
-  "short_name": "Papá Strong",
-  "description": "For the papá who shows up. Log your lifts, beat your last session, earn dad badges and track PRs. Works offline.",
+  "name": "DadStrong",
+  "short_name": "DadStrong",
+  "description": "Workout tracker for busy fathers. Log your lifts, beat your last session, earn dad badges and track PRs. Works offline.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

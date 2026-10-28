@@ -1,4 +1,4 @@
-// Papá Strong · Spanish UI strings (Latino Spanish). Keys are the English UI text; {0},{1}… are placeholders.
+// DadStrong · Spanish UI strings (Latino Spanish). Keys are the English UI text; {0},{1}… are placeholders.
 window.ES_DICT = {
 // navigation & general
 "Train": "Entrenar", "History": "Historial", "Progress": "Progreso", "Settings": "Ajustes", "Compare": "Comparar", "Workout": "Entrenamiento",
@@ -85,8 +85,8 @@ window.ES_DICT = {
 ". Android: Chrome menu, then": ". Android: menú de Chrome y luego", "Install app": "Instalar app", ". After the first load it works offline.": ". Después de la primera carga funciona sin internet.",
 "A quick walkthrough of how the app works.": "Un recorrido rapidito de cómo funciona la app.", "Replay tutorial": "Ver tutorial otra vez", "Erase all data": "Borrar todos los datos",
 "{0} workouts · {1} exercises": "{0} entrenamientos · {1} ejercicios", "{0} workout · {1} exercises": "{0} entrenamiento · {1} ejercicios",
-"Papá Strong is made by Soy Papá, premium Latino dad culture.": "Papá Strong es de Soy Papá, cultura premium del papá latino.", "Show the Soy Papá shop card": "Mostrar la tarjeta de la tienda Soy Papá",
-"Dad badges": "Medallas de papá", "Shop card on": "Tarjeta de la tienda activada", "Shop card hidden": "Tarjeta de la tienda oculta",
+"Workout tracker for busy fathers. Beat your last session, earn dad badges, track PRs.": "App de entrenamiento para papás ocupados. Supera tu última sesión, gana medallas y registra PRs.",
+"Dad badges": "Medallas de papá",
 // rest timer & universal timer
 "Rest": "Descanso", "Minus {0} seconds": "Menos {0} segundos", "Plus {0} seconds": "Más {0} segundos", "Open timer": "Abrir reloj", "Timer": "Reloj",
 "Rest is over. Next set!": "Se acabó el descanso. ¡A la siguiente serie!", "Stop current timer": "Parar el descanso",
@@ -116,7 +116,7 @@ window.ES_DICT = {
 "Could not save friend": "No se pudo guardar al amigo", "That's your own link. Send it to a friend!": "Ese es tu propio link. ¡Mándaselo a un amigo!",
 "Updated {0}'s stats": "Se actualizaron los números de {0}", "You already have a newer snapshot from {0}": "Ya tienes números más nuevos de {0}",
 "Remove {0} from Friends?": "¿Quitar a {0} de Amigos?", "{0} saved to Friends": "{0} guardado en Amigos", "Compare lifts with {0}": "Compara tus levantadas con {0}",
-"My lifts on Papá Strong": "Mis levantadas en Papá Strong",
+"My lifts on DadStrong": "Mis levantadas en DadStrong",
 // resume / edit / conflicts
 "Editing workout": "Editando entrenamiento", "Workout resumed": "Entrenamiento reanudado", "Workout in progress": "Entrenamiento en curso",
 "You're still in \"{0}\". What should happen to it before opening \"{1}\"?": "Todavía estás en \"{0}\". ¿Qué hacemos con él antes de abrir \"{1}\"?",
@@ -129,7 +129,7 @@ window.ES_DICT = {
 // confirms & toasts
 "Could not save - storage full? Export a backup.": "No se pudo guardar. ¿Almacenamiento lleno? Exporta un respaldo.", "Backup exported": "Respaldo exportado",
 "Replace everything on this phone with this backup? {0} workouts, {1} exercises{2}": "¿Reemplazar todo en este teléfono con este respaldo? {0} entrenamientos, {1} ejercicios{2}",
-"Imported {0} workouts": "Se importaron {0} entrenamientos", "That file isn't a Papá Strong backup": "Ese archivo no es un respaldo de Papá Strong",
+"Imported {0} workouts": "Se importaron {0} entrenamientos", "That file isn't a DadStrong backup": "Ese archivo no es un respaldo de DadStrong",
 "Switch mode? Sets you already checked off stay as they are.": "¿Cambiar de modo? Las series que ya marcaste se quedan como están.",
 "Delete {0}?{1}": "¿Borrar {0}?{1}", "Delete {0}?": "¿Borrar {0}?", "Remove this exercise and its logged sets?": "¿Quitar este ejercicio y sus series anotadas?", "Delete set {0}?": "¿Borrar la serie {0}?",
 "All sets are already done": "Ya hiciste todas las series", "Set to {0} × {1}": "Puesto en {0} × {1}",
@@ -146,19 +146,18 @@ window.ES_DICT = {
 "Your name (shown to friends)": "Tu nombre (lo ven tus amigos)", "Start your first workout": "Empezar mi primer entrenamiento", "I’ll look around first": "Primero voy a echar un vistazo",
 "Language / Idioma": "Idioma / Language", "Tip: tap": "Tip: toca", "when a set is done. The rest timer starts by itself. Need a countdown or stopwatch? Tap": "cuando termines una serie. El descanso arranca solo. ¿Necesitas regresiva o cronómetro? Toca",
 "at the bottom right.": "abajo a la derecha.", "Tutorial available": "Tutorial disponible",
-// Papá Strong brand
-"For the papá who shows up.": "Para el papá que siempre está presente.", "Papá Strong · by Soy Papá": "Papá Strong · de Soy Papá", "Soy Papá · Shop": "Soy Papá · Tienda", "Soy Papá shop": "Tienda Soy Papá",
-"Papá Águila Tank and more": "Papá Águila Tank y más", "Collapse shop card": "Minimizar tarjeta de la tienda", "Shop the tank": "Ver el tank",
-"Soy Papá in gothic lettering. Boxy French terry, built for heat, work and weekends with the kids.": "Soy Papá en letra gótica. French terry de corte boxy, hecha para el calor, el trabajo y los fines de semana con los niños.",
-"New look": "Nuevo look", "Overload is now Papá Strong, by Soy Papá. Same app, all your workouts right where you left them. New: dad badges and Spanish (Settings).": "Overload ahora es Papá Strong, de Soy Papá. La misma app, con todos tus entrenamientos donde los dejaste. Nuevo: medallas de papá y español (Ajustes).",
+// DadStrong brand
+"For the dad who shows up.": "Para el papá que siempre está presente.",
+"New look": "Nuevo look", "Papá Strong is now DadStrong. Same app, all your workouts right where you left them. Built for busy fathers.": "Papá Strong ahora es DadStrong. La misma app, con todos tus entrenamientos donde los dejaste. Hecha para papás ocupados.",
 "See my badges": "Ver mis medallas", "See all badges": "Ver todas las medallas", "New badges": "Medallas nuevas", "{0} of {1} earned": "{0} de {1} ganadas", "+{0} more": "+{0} más",
 "{0} · Badge earned": "{0} · Medalla ganada", "Badges come from your logged workouts and never change them.": "Las medallas salen de tus entrenamientos y nunca los modifican.",
-"Always there.": "Siempre ahí.", "Latino pride.": "Orgullo latino.", "Family first.": "La familia primero.", "Leave a legacy.": "Deja un legado.",
+"Show up.": "Preséntate.", "Beat yourself.": "Supérate.", "Lift together.": "Levanten juntos.", "Get stronger.": "Ponte más fuerte.",
+"Consistency": "Constancia", "Records": "Récords", "Crew": "La banda", "Strength": "Fuerza",
 "Showed up": "Aquí estoy", "Logged your first workout": "Registraste tu primer entrenamiento", "Three in a week": "Tres en una semana", "Trained 3 times in one week": "Entrenaste 3 veces en una semana",
 "4-week streak": "Racha de 4 semanas", "Trained 4 weeks in a row": "Entrenaste 4 semanas seguidas", "12-week streak": "Racha de 12 semanas", "Trained 12 weeks in a row": "Entrenaste 12 semanas seguidas",
 "First PR": "Primer PR", "Set your first personal record": "Lograste tu primer récord personal", "10 PRs": "10 PRs", "Set 10 personal records": "Lograste 10 récords personales",
 "50 PRs": "50 PRs", "Set 50 personal records": "Lograste 50 récords personales", "Shared your stats": "Compartiste tus números", "Sent your stats link to someone": "Le mandaste tu link a alguien",
-"Crew": "La banda", "Saved a friend to compare with": "Guardaste a un amigo para comparar", "La familia": "La familia", "Saved 3 friends": "Guardaste 3 amigos",
+"Crew": "La banda", "Saved a friend to compare with": "Guardaste a un amigo para comparar", "Squad": "El squad", "Saved 3 friends": "Guardaste 3 amigos",
 "Two plates": "Dos discos", "Three plates": "Tres discos", "Four plates": "Cuatro discos", "Estimated max of {0} on bench, squat or deadlift": "Máximo estimado de {0} en banca, sentadilla o peso muerto",
 "1000 lb club": "Club de las 1000 lb", "Bench + squat + deadlift estimated maxes total 1000 lb": "Banca + sentadilla + peso muerto suman 1000 lb de máximo estimado",
 "Bench + squat + deadlift estimated maxes total 450 kg": "Banca + sentadilla + peso muerto suman 450 kg de máximo estimado", "100 workouts": "100 entrenamientos", "Logged 100 workouts": "Registraste 100 entrenamientos",
